@@ -20,30 +20,55 @@ function switchTab(tabName) {
 }
 
 // =====================================================
-// 2. SIDEBAR SUB-SECTION SWITCHING LOGIC
+// 2. SIDEBAR OPEN / CLOSE TOGGLE LOGIC
+// =====================================================
+function toggleSidebar(tabPrefix) {
+    const sidebar = document.getElementById(`sidebar-${tabPrefix}`);
+    const content = document.getElementById(`content-${tabPrefix}`);
+    const toggleTxt = document.getElementById(`toggle-txt-${tabPrefix}`);
+
+    if (sidebar.classList.contains('hidden')) {
+        // Show Sidebar
+        sidebar.classList.remove('hidden');
+        sidebar.classList.add('lg:col-span-3');
+        if (content) {
+            content.classList.remove('lg:col-span-12');
+            content.classList.add('lg:col-span-9');
+        }
+        if (toggleTxt) toggleTxt.innerText = "Hide Menu";
+    } else {
+        // Hide Sidebar (Expand Main Content to Full Width)
+        sidebar.classList.add('hidden');
+        sidebar.classList.remove('lg:col-span-3');
+        if (content) {
+            content.classList.remove('lg:col-span-9');
+            content.classList.add('lg:col-span-12');
+        }
+        if (toggleTxt) toggleTxt.innerText = "Show Menu";
+    }
+}
+
+// =====================================================
+// 3. SIDEBAR SUB-SECTION SWITCHING LOGIC
 // =====================================================
 function switchSubView(tabPrefix, subViewName) {
-    // Hide all sub-sections inside the current active tab
     const parentTab = document.getElementById(`view-${tabPrefix}`);
     parentTab.querySelectorAll('.sub-section').forEach(sub => {
         sub.classList.add('hidden');
         sub.classList.remove('block');
     });
 
-    // Remove active style from all sidebar buttons in this tab
     parentTab.querySelectorAll('.sub-nav-btn').forEach(btn => {
         btn.classList.remove('active-sub');
         btn.classList.add('text-slate-300', 'hover:bg-slate-700/50');
     });
 
-    // Show the selected sub-section
     const targetSub = document.getElementById(`sub-view-${subViewName}`);
     if (targetSub) {
         targetSub.classList.remove('hidden');
         targetSub.classList.add('block');
     }
 
-    // Highlight the clicked sidebar button
     const activeSubBtn = document.getElementById(`sub-btn-${subViewName}`);
     if (activeSubBtn) {
         activeSubBtn.classList.add('active-sub');
@@ -52,7 +77,7 @@ function switchSubView(tabPrefix, subViewName) {
 }
 
 // =====================================================
-// 3. INITIALIZE LIVE CHARTS (Chart.js)
+// 4. INITIALIZE LIVE CHARTS (Chart.js)
 // =====================================================
 const timeLabels = ['10s', '8s', '6s', '4s', '2s', 'Now'];
 
@@ -140,7 +165,7 @@ const rulChart = new Chart(ctxRul, {
 });
 
 // =====================================================
-// 4. ALERT LOG MANAGEMENT
+// 5. ALERT LOG MANAGEMENT
 // =====================================================
 const initialAlerts = [
     { level: 'CRITICAL', color: 'rose', msg: 'High Temp TX-1 (85°C Threshold Near)', time: '14:32:10' },
@@ -171,7 +196,7 @@ function renderAlerts() {
 renderAlerts();
 
 // =====================================================
-// 5. REAL-TIME SCADA DATA STREAM & BACKEND INTEGRATION
+// 6. REAL-TIME SCADA DATA STREAM & BACKEND INTEGRATION
 // =====================================================
 const API_BASE_URL = "http://127.0.0.1:8000";
 let isFaultInjected = false;
@@ -210,7 +235,7 @@ setInterval(async () => {
 }, 2500);
 
 // =====================================================
-// 6. 3D SIMULATOR & AI RUL PREDICTION ENGINE
+// 7. 3D SIMULATOR & AI RUL PREDICTION ENGINE
 // =====================================================
 async function runSimulation() {
     const load = parseFloat(document.getElementById('slider-load').value);
@@ -297,7 +322,7 @@ function resetSimulation() {
 }
 
 // =====================================================
-// 7. PDF REPORT EXPORT
+// 8. PDF REPORT EXPORT
 // =====================================================
 async function downloadPDFReport() {
     try {

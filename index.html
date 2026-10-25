@@ -62,10 +62,16 @@
         <!-- VIEW 1: REAL-TIME TELEMETRY & 2D SLD                             -->
         <!-- ================================================================= -->
         <section id="view-telemetry" class="tab-content block">
+            <div class="flex items-center mb-4">
+                <button onclick="toggleSidebar('telemetry')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2">
+                    <i class="fa-solid fa-bars"></i> <span id="toggle-txt-telemetry">Hide Menu</span>
+                </button>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
                 <!-- Left Sidebar Navigation -->
-                <aside class="lg:col-span-3 bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 sticky-sidebar space-y-3">
+                <aside id="sidebar-telemetry" class="lg:col-span-3 bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 sticky-sidebar space-y-3 transition-all duration-300">
                     <div class="flex items-center gap-2 pb-2 border-b border-slate-700">
                         <i class="fa-solid fa-bars-staggered text-cyan-400"></i>
                         <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Telemetry Menu</h3>
@@ -87,7 +93,7 @@
                 </aside>
 
                 <!-- Right Main Content Area (Sub-Views) -->
-                <div class="lg:col-span-9">
+                <div id="content-telemetry" class="lg:col-span-9 transition-all duration-300">
                     <!-- Sub-View 1: Gauges -->
                     <div id="sub-view-gauges" class="sub-section block bg-slate-800/60 border border-slate-700/70 rounded-xl p-6 shadow-xl">
                         <div class="flex justify-between items-center mb-6">
@@ -230,10 +236,16 @@
         <!-- VIEW 2: AI ANALYTICS & HEALTH                                     -->
         <!-- ================================================================= -->
         <section id="view-ai-health" class="tab-content hidden">
+            <div class="flex items-center mb-4">
+                <button onclick="toggleSidebar('ai-health')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2">
+                    <i class="fa-solid fa-bars"></i> <span id="toggle-txt-ai-health">Hide Menu</span>
+                </button>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
                 <!-- Left Sidebar Navigation -->
-                <aside class="lg:col-span-3 bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 sticky-sidebar space-y-3">
+                <aside id="sidebar-ai-health" class="lg:col-span-3 bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 sticky-sidebar space-y-3 transition-all duration-300">
                     <div class="flex items-center gap-2 pb-2 border-b border-slate-700">
                         <i class="fa-solid fa-bars-staggered text-cyan-400"></i>
                         <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-wider">AI Analytics Menu</h3>
@@ -252,7 +264,7 @@
                 </aside>
 
                 <!-- Right Main Content Area (Sub-Views) -->
-                <div class="lg:col-span-9">
+                <div id="content-ai-health" class="lg:col-span-9 transition-all duration-300">
                     <!-- Sub-View 1: Health Overview -->
                     <div id="sub-view-overview" class="sub-section block space-y-6">
                         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -384,10 +396,16 @@
         <!-- VIEW 3: 3D TWIN SIMULATOR                                         -->
         <!-- ================================================================= -->
         <section id="view-simulator" class="tab-content hidden">
+            <div class="flex items-center mb-4">
+                <button onclick="toggleSidebar('simulator')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2">
+                    <i class="fa-solid fa-bars"></i> <span id="toggle-txt-simulator">Hide Menu</span>
+                </button>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
                 <!-- Left Sidebar Navigation -->
-                <aside class="lg:col-span-3 bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 sticky-sidebar space-y-3">
+                <aside id="sidebar-simulator" class="lg:col-span-3 bg-slate-800/60 border border-slate-700/80 rounded-xl p-4 sticky-sidebar space-y-3 transition-all duration-300">
                     <div class="flex items-center gap-2 pb-2 border-b border-slate-700">
                         <i class="fa-solid fa-bars-staggered text-cyan-400"></i>
                         <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Simulator Menu</h3>
@@ -406,7 +424,7 @@
                 </aside>
 
                 <!-- Right Main Content Area (Sub-Views) -->
-                <div class="lg:col-span-9">
+                <div id="content-simulator" class="lg:col-span-9 transition-all duration-300">
                     <!-- Sub-View 1: Asset Tree -->
                     <div id="sub-view-tree" class="sub-section block bg-slate-800/60 border border-slate-700 rounded-xl p-6 shadow-xl">
                         <h3 class="text-lg font-semibold text-cyan-400 mb-4 flex items-center gap-2">
