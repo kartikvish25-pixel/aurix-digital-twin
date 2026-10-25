@@ -1,5 +1,5 @@
 // =====================================================
-// 1. TAB SWITCHING LOGIC
+// 1. MAIN TAB SWITCHING LOGIC
 // =====================================================
 function switchTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(sec => {
@@ -20,7 +20,39 @@ function switchTab(tabName) {
 }
 
 // =====================================================
-// 2. INITIALIZE LIVE CHARTS (Chart.js)
+// 2. SIDEBAR SUB-SECTION SWITCHING LOGIC
+// =====================================================
+function switchSubView(tabPrefix, subViewName) {
+    // Hide all sub-sections inside the current active tab
+    const parentTab = document.getElementById(`view-${tabPrefix}`);
+    parentTab.querySelectorAll('.sub-section').forEach(sub => {
+        sub.classList.add('hidden');
+        sub.classList.remove('block');
+    });
+
+    // Remove active style from all sidebar buttons in this tab
+    parentTab.querySelectorAll('.sub-nav-btn').forEach(btn => {
+        btn.classList.remove('active-sub');
+        btn.classList.add('text-slate-300', 'hover:bg-slate-700/50');
+    });
+
+    // Show the selected sub-section
+    const targetSub = document.getElementById(`sub-view-${subViewName}`);
+    if (targetSub) {
+        targetSub.classList.remove('hidden');
+        targetSub.classList.add('block');
+    }
+
+    // Highlight the clicked sidebar button
+    const activeSubBtn = document.getElementById(`sub-btn-${subViewName}`);
+    if (activeSubBtn) {
+        activeSubBtn.classList.add('active-sub');
+        activeSubBtn.classList.remove('text-slate-300', 'hover:bg-slate-700/50');
+    }
+}
+
+// =====================================================
+// 3. INITIALIZE LIVE CHARTS (Chart.js)
 // =====================================================
 const timeLabels = ['10s', '8s', '6s', '4s', '2s', 'Now'];
 
@@ -108,7 +140,7 @@ const rulChart = new Chart(ctxRul, {
 });
 
 // =====================================================
-// 3. ALERT LOG MANAGEMENT
+// 4. ALERT LOG MANAGEMENT
 // =====================================================
 const initialAlerts = [
     { level: 'CRITICAL', color: 'rose', msg: 'High Temp TX-1 (85°C Threshold Near)', time: '14:32:10' },
@@ -127,19 +159,19 @@ function renderAlerts() {
     const container = document.getElementById('alert-log-list');
     if (!container) return;
     container.innerHTML = initialAlerts.map(a => `
-        <div class="p-2.5 rounded-lg bg-slate-900/90 border border-${a.color}-500/30 flex justify-between items-center text-xs">
-            <div class="flex items-center space-x-2">
-                <span class="px-1.5 py-0.5 rounded bg-${a.color}-500/20 text-${a.color}-400 font-bold text-[10px]">${a.level}</span>
+        <div class="p-3 rounded-xl bg-slate-900 border border-${a.color}-500/30 flex justify-between items-center text-sm">
+            <div class="flex items-center space-x-3">
+                <span class="px-2 py-1 rounded bg-${a.color}-500/20 text-${a.color}-400 font-bold text-xs">${a.level}</span>
                 <span class="text-slate-200">${a.msg}</span>
             </div>
-            <span class="text-slate-500 text-[10px]">${a.time}</span>
+            <span class="text-slate-500 text-xs">${a.time}</span>
         </div>
     `).join('');
 }
 renderAlerts();
 
 // =====================================================
-// 4. REAL-TIME SCADA DATA STREAM & BACKEND INTEGRATION
+// 5. REAL-TIME SCADA DATA STREAM & BACKEND INTEGRATION
 // =====================================================
 const API_BASE_URL = "http://127.0.0.1:8000";
 let isFaultInjected = false;
@@ -158,7 +190,6 @@ setInterval(async () => {
         document.getElementById('val-freq').innerText = `${data.scada.frequency_hz} Hz`;
         document.getElementById('system-status-text').innerText = "FASTAPI + ML ENGINE: LIVE";
 
-        // Push to live chart
         const nowLabel = new Date().toLocaleTimeString().slice(3, 8);
         telemetryChart.data.labels.shift();
         telemetryChart.data.labels.push(nowLabel);
@@ -168,7 +199,6 @@ setInterval(async () => {
         telemetryChart.data.datasets[1].data.push(data.scada.power_mw);
         telemetryChart.update();
     } catch (err) {
-        // Fallback simulation if backend offline
         const voltage = (400 + (Math.random() * 4 - 1.5)).toFixed(1);
         const current = (208 + (Math.random() * 8 - 4)).toFixed(1);
         const power = ((voltage * current * 1.732 * 0.85) / 1000).toFixed(1);
@@ -180,7 +210,7 @@ setInterval(async () => {
 }, 2500);
 
 // =====================================================
-// 5. 3D SIMULATOR & AI RUL PREDICTION ENGINE
+// 6. 3D SIMULATOR & AI RUL PREDICTION ENGINE
 // =====================================================
 async function runSimulation() {
     const load = parseFloat(document.getElementById('slider-load').value);
@@ -220,7 +250,7 @@ async function runSimulation() {
 
     document.getElementById('health-t1').innerText = `${healthT1}%`;
     document.getElementById('bar-health-t1').style.width = `${healthT1}%`;
-    document.getElementById('tree-status-t1').innerText = `${healthT1}%`;
+    document.getElementById('tree-status-t1').innerText = `${healthT1}% Optimal`;
     document.getElementById('rul-badge').innerText = `ML RUL: ${rulDays} Days`;
 
     const tx1Box = document.getElementById('iso-tx1-box');
@@ -267,7 +297,7 @@ function resetSimulation() {
 }
 
 // =====================================================
-// 6. PDF REPORT EXPORT
+// 7. PDF REPORT EXPORT
 // =====================================================
 async function downloadPDFReport() {
     try {

@@ -1,8 +1,4 @@
 /* Custom Styling for Digital Twin Dashboard with Sidebars */
-html {
-    scroll-behavior: smooth;
-}
-
 .sticky-sidebar {
     position: sticky;
     top: 80px;
@@ -14,6 +10,13 @@ html {
     color: #22d3ee !important;
     border: 1px solid rgba(34, 211, 238, 0.4);
     box-shadow: 0 0 12px rgba(34, 211, 238, 0.2);
+}
+
+.active-sub {
+    background: rgba(6, 182, 212, 0.15);
+    color: #22d3ee !important;
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    font-weight: 600;
 }
 
 .glow-line {
