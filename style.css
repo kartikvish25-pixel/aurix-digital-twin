@@ -1,4 +1,14 @@
-/* Custom Styling for Digital Twin Dashboard */
+/* Custom Styling for Digital Twin Dashboard with Sidebars */
+html {
+    scroll-behavior: smooth;
+}
+
+.sticky-sidebar {
+    position: sticky;
+    top: 80px;
+    height: fit-content;
+}
+
 .active-tab {
     background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(59, 130, 246, 0.2));
     color: #22d3ee !important;
@@ -10,7 +20,7 @@
     filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.7));
 }
 
-/* Custom Scrollbar for Alert Log */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;

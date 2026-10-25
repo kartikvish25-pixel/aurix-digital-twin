@@ -1,5 +1,3 @@
-const API_BASE_URL = "https://aurix-backend-jim2.onrender.com"; // updated
-
 // =====================================================
 // 1. TAB SWITCHING LOGIC
 // =====================================================
@@ -26,7 +24,6 @@ function switchTab(tabName) {
 // =====================================================
 const timeLabels = ['10s', '8s', '6s', '4s', '2s', 'Now'];
 
-// Chart 1: Telemetry & Failure Prob Stream
 const ctxTelemetry = document.getElementById('telemetryChart').getContext('2d');
 const telemetryChart = new Chart(ctxTelemetry, {
     type: 'line',
@@ -60,7 +57,6 @@ const telemetryChart = new Chart(ctxTelemetry, {
     }
 });
 
-// Chart 2: LSTM Failure Probability
 const ctxLstm = document.getElementById('lstmFailureChart').getContext('2d');
 const lstmChart = new Chart(ctxLstm, {
     type: 'line',
@@ -86,14 +82,13 @@ const lstmChart = new Chart(ctxLstm, {
     }
 });
 
-// Chart 3: Remaining Useful Life (RUL Degradation Curve)
 const ctxRul = document.getElementById('rulChart').getContext('2d');
 const rulChart = new Chart(ctxRul, {
     type: 'line',
     data: {
         labels: ['Now', '+30d', '+60d', '+90d', '+120d', '+150d', '+180d'],
         datasets: [{
-            label: 'Asset Health Degradation Curve (%)',
+            label: 'Asset Health Degradation (%)',
             data: [92, 86, 79, 71, 62, 50, 38],
             borderColor: '#10b981',
             backgroundColor: 'rgba(16, 185, 129, 0.15)',
@@ -130,6 +125,7 @@ function addAlert(level, color, msg) {
 
 function renderAlerts() {
     const container = document.getElementById('alert-log-list');
+    if (!container) return;
     container.innerHTML = initialAlerts.map(a => `
         <div class="p-2.5 rounded-lg bg-slate-900/90 border border-${a.color}-500/30 flex justify-between items-center text-xs">
             <div class="flex items-center space-x-2">
@@ -143,37 +139,50 @@ function renderAlerts() {
 renderAlerts();
 
 // =====================================================
-// 4. REAL-TIME SCADA DATA STREAM (Every 2.5 Seconds)
+// 4. REAL-TIME SCADA DATA STREAM & BACKEND INTEGRATION
 // =====================================================
+const API_BASE_URL = "http://127.0.0.1:8000";
 let isFaultInjected = false;
 
-setInterval(() => {
+setInterval(async () => {
     if (isFaultInjected) return;
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/telemetry`);
+        if (!res.ok) return;
+        const data = await res.json();
 
-    const voltage = (400 + (Math.random() * 4 - 1.5)).toFixed(1);
-    const current = (208 + (Math.random() * 8 - 4)).toFixed(1);
-    const power = ((voltage * current * 1.732 * 0.85) / 1000).toFixed(1);
-    const freq = (49.95 + Math.random() * 0.1).toFixed(2);
+        document.getElementById('val-voltage').innerText = data.scada.voltage_kv;
+        document.getElementById('val-current').innerText = data.scada.current_a;
+        document.getElementById('val-power').innerText = data.scada.power_mw;
+        document.getElementById('val-pf').innerText = data.scada.power_factor;
+        document.getElementById('val-freq').innerText = `${data.scada.frequency_hz} Hz`;
+        document.getElementById('system-status-text').innerText = "FASTAPI + ML ENGINE: LIVE";
 
-    document.getElementById('val-voltage').innerText = voltage;
-    document.getElementById('val-current').innerText = current;
-    document.getElementById('val-power').innerText = power;
-    document.getElementById('val-freq').innerText = `${freq} Hz`;
-
-    const nowLabel = new Date().toLocaleTimeString().slice(3, 8);
-    telemetryChart.data.labels.shift();
-    telemetryChart.data.labels.push(nowLabel);
-    telemetryChart.data.datasets[0].data.shift();
-    telemetryChart.data.datasets[0].data.push(voltage);
-    telemetryChart.data.datasets[1].data.shift();
-    telemetryChart.data.datasets[1].data.push(power);
-    telemetryChart.update();
+        // Push to live chart
+        const nowLabel = new Date().toLocaleTimeString().slice(3, 8);
+        telemetryChart.data.labels.shift();
+        telemetryChart.data.labels.push(nowLabel);
+        telemetryChart.data.datasets[0].data.shift();
+        telemetryChart.data.datasets[0].data.push(data.scada.voltage_kv);
+        telemetryChart.data.datasets[1].data.shift();
+        telemetryChart.data.datasets[1].data.push(data.scada.power_mw);
+        telemetryChart.update();
+    } catch (err) {
+        // Fallback simulation if backend offline
+        const voltage = (400 + (Math.random() * 4 - 1.5)).toFixed(1);
+        const current = (208 + (Math.random() * 8 - 4)).toFixed(1);
+        const power = ((voltage * current * 1.732 * 0.85) / 1000).toFixed(1);
+        document.getElementById('val-voltage').innerText = voltage;
+        document.getElementById('val-current').innerText = current;
+        document.getElementById('val-power').innerText = power;
+        document.getElementById('system-status-text').innerText = "SCADA SYNC: STANDALONE";
+    }
 }, 2500);
 
 // =====================================================
 // 5. 3D SIMULATOR & AI RUL PREDICTION ENGINE
 // =====================================================
-function runSimulation() {
+async function runSimulation() {
     const load = parseFloat(document.getElementById('slider-load').value);
     const temp = parseFloat(document.getElementById('slider-temp').value);
     const thd = parseFloat(document.getElementById('slider-thd').value);
@@ -182,10 +191,26 @@ function runSimulation() {
     document.getElementById('lbl-sim-temp').innerText = `${temp} °C`;
     document.getElementById('lbl-sim-thd').innerText = `${thd}%`;
 
-    const hotSpot = (temp + (load * 0.15) + (thd * 0.8)).toFixed(1);
-    const failureRisk = Math.min(99, Math.max(5, ((load - 50) * 0.5 + (temp - 55) * 1.1 + thd * 2.2))).toFixed(1);
-    const rulDays = Math.max(3, Math.round(220 - (failureRisk * 2.1)));
-    const healthT1 = Math.max(15, Math.round(100 - (failureRisk * 0.75)));
+    let hotSpot = (temp + (load * 0.15) + (thd * 0.8)).toFixed(1);
+    let failureRisk = Math.min(99, Math.max(5, ((load - 50) * 0.5 + (temp - 55) * 1.1 + thd * 2.2))).toFixed(1);
+    let rulDays = Math.max(3, Math.round(220 - (failureRisk * 2.1)));
+    let healthT1 = Math.max(15, Math.round(100 - (failureRisk * 0.75)));
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/simulate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ load_pct: load, oil_temp: temp, thd: thd })
+        });
+        if (res.ok) {
+            const result = await res.json();
+            const ai = result.ai_predictions;
+            hotSpot = ai.hotspot_temp_c;
+            failureRisk = ai.failure_prob_pct;
+            rulDays = ai.rul_days;
+            healthT1 = ai.health_index_pct;
+        }
+    } catch (e) {}
 
     document.getElementById('sim-out-hotspot').innerText = `${hotSpot} °C`;
     document.getElementById('sim-out-risk').innerText = `${failureRisk} %`;
@@ -196,12 +221,11 @@ function runSimulation() {
     document.getElementById('health-t1').innerText = `${healthT1}%`;
     document.getElementById('bar-health-t1').style.width = `${healthT1}%`;
     document.getElementById('tree-status-t1').innerText = `${healthT1}%`;
-    document.getElementById('rul-badge').innerText = `Est. RUL: ${rulDays} Days`;
+    document.getElementById('rul-badge').innerText = `ML RUL: ${rulDays} Days`;
 
     const tx1Box = document.getElementById('iso-tx1-box');
     const powerLine = document.getElementById('iso-power-line');
     const twinPill = document.getElementById('twin-alert-pill');
-    const sysBadge = document.getElementById('system-status-text');
 
     if (failureRisk > 60 || temp >= 90 || load >= 110) {
         isFaultInjected = true;
@@ -210,9 +234,8 @@ function runSimulation() {
         powerLine.setAttribute('stroke', '#f43f5e');
         twinPill.innerText = 'CRITICAL: OVERLOAD / THERMAL FAULT!';
         twinPill.className = 'text-xs bg-rose-500/20 border border-rose-500 text-rose-400 px-3 py-1 rounded-full font-bold animate-bounce';
-        sysBadge.innerText = 'FAULT DETECTED: TX-1 ALERT';
         
-        lstmChart.data.datasets[0].data = [15, 28, 45, 62, 78, 88, failureRisk];
+        lstmChart.data.datasets[0].data = [15, 28, 45, 62, 78, 88, Number(failureRisk)];
         lstmChart.update();
     } else {
         isFaultInjected = false;
@@ -221,9 +244,8 @@ function runSimulation() {
         powerLine.setAttribute('stroke', '#22d3ee');
         twinPill.innerText = 'STATE: NORMAL OPERATION';
         twinPill.className = 'text-xs bg-cyan-500/20 border border-cyan-400 text-cyan-300 px-3 py-1 rounded-full font-semibold';
-        sysBadge.innerText = 'SCADA SYNC: STABLE';
 
-        lstmChart.data.datasets[0].data = [5, 7, 9, 12, 14, 15, failureRisk];
+        lstmChart.data.datasets[0].data = [5, 7, 9, 12, 14, 15, Number(failureRisk)];
         lstmChart.update();
     }
 }
@@ -245,64 +267,12 @@ function resetSimulation() {
 }
 
 // =====================================================
-// 6. PYTHON FASTAPI BACKEND INTEGRATION (AUTO-DETECT)
-// =====================================================
-let backendConnected = false;
-
-setInterval(async () => {
-    if (isFaultInjected) return;
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/telemetry`);
-        if (!res.ok) return;
-        const data = await res.json();
-        backendConnected = true;
-
-        document.getElementById('val-voltage').innerText = data.scada.voltage_kv;
-        document.getElementById('val-current').innerText = data.scada.current_a;
-        document.getElementById('val-power').innerText = data.scada.power_mw;
-        document.getElementById('val-pf').innerText = data.scada.power_factor;
-        document.getElementById('val-freq').innerText = `${data.scada.frequency_hz} Hz`;
-        document.getElementById('system-status-text').innerText = "FASTAPI + ML ENGINE: LIVE";
-    } catch (err) {
-        backendConnected = false;
-    }
-}, 2500);
-
-const originalRunSimulation = runSimulation;
-runSimulation = async function () {
-    originalRunSimulation();
-
-    const load = parseFloat(document.getElementById('slider-load').value);
-    const temp = parseFloat(document.getElementById('slider-temp').value);
-    const thd = parseFloat(document.getElementById('slider-thd').value);
-
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/simulate`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ load_pct: load, oil_temp: temp, thd: thd })
-        });
-        if (!res.ok) return;
-        const result = await res.json();
-        const ai = result.ai_predictions;
-
-        document.getElementById('sim-out-hotspot').innerText = `${ai.hotspot_temp_c} °C`;
-        document.getElementById('sim-out-risk').innerText = `${ai.failure_prob_pct} %`;
-        document.getElementById('sim-out-rul').innerText = `${ai.rul_days} Days`;
-        document.getElementById('rul-badge').innerText = `ML RUL: ${ai.rul_days} Days`;
-    } catch (e) {
-        // Fallback
-    }
-};
-
-// =====================================================
-// 7. PDF / COMPLIANCE REPORT EXPORT FUNCTION
+// 6. PDF REPORT EXPORT
 // =====================================================
 async function downloadPDFReport() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/export-report`);
-        if (!response.ok) throw new Error("Failed to generate report");
-        
+        if (!response.ok) throw new Error("Failed");
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -312,9 +282,8 @@ async function downloadPDFReport() {
         a.click();
         window.URL.revokeObjectURL(url);
         a.remove();
-        
-        addAlert('INFO', 'emerald', 'Compliance & Health Report downloaded successfully.');
+        addAlert('INFO', 'emerald', 'Compliance Report exported successfully.');
     } catch (err) {
-        alert("Make sure FastAPI backend is running to export report!");
+        alert("Ensure FastAPI backend is running (`uvicorn main:app --reload`) to export report.");
     }
 }
