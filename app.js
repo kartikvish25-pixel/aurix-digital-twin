@@ -1,4 +1,5 @@
 const API_BASE_URL = "https://aurix-backend-jim2.onrender.com";
+
 // =====================================================
 // 1. TAB SWITCHING LOGIC
 // =====================================================
@@ -147,7 +148,7 @@ renderAlerts();
 let isFaultInjected = false;
 
 setInterval(() => {
-    if (isFaultInjected) return; // Don't overwrite manual fault state
+    if (isFaultInjected) return;
 
     const voltage = (400 + (Math.random() * 4 - 1.5)).toFixed(1);
     const current = (208 + (Math.random() * 8 - 4)).toFixed(1);
@@ -159,7 +160,6 @@ setInterval(() => {
     document.getElementById('val-power').innerText = power;
     document.getElementById('val-freq').innerText = `${freq} Hz`;
 
-    // Push to live chart
     const nowLabel = new Date().toLocaleTimeString().slice(3, 8);
     telemetryChart.data.labels.shift();
     telemetryChart.data.labels.push(nowLabel);
@@ -182,26 +182,22 @@ function runSimulation() {
     document.getElementById('lbl-sim-temp').innerText = `${temp} °C`;
     document.getElementById('lbl-sim-thd').innerText = `${thd}%`;
 
-    // Calculate Physics & AI Outputs
     const hotSpot = (temp + (load * 0.15) + (thd * 0.8)).toFixed(1);
     const failureRisk = Math.min(99, Math.max(5, ((load - 50) * 0.5 + (temp - 55) * 1.1 + thd * 2.2))).toFixed(1);
     const rulDays = Math.max(3, Math.round(220 - (failureRisk * 2.1)));
     const healthT1 = Math.max(15, Math.round(100 - (failureRisk * 0.75)));
 
-    // Update Simulator Output UI
     document.getElementById('sim-out-hotspot').innerText = `${hotSpot} °C`;
     document.getElementById('sim-out-risk').innerText = `${failureRisk} %`;
     document.getElementById('sim-out-rul').innerText = `${rulDays} Days`;
     document.getElementById('svg-tx1-temp').innerText = `Oil Temp: ${temp} °C`;
     document.getElementById('svg-tx1-load').innerText = `Load: ${load}%`;
 
-    // Update Health & RUL across tabs
     document.getElementById('health-t1').innerText = `${healthT1}%`;
     document.getElementById('bar-health-t1').style.width = `${healthT1}%`;
     document.getElementById('tree-status-t1').innerText = `${healthT1}%`;
     document.getElementById('rul-badge').innerText = `Est. RUL: ${rulDays} Days`;
 
-    // Visual State Changes on 3D Isometric Twin & SLD
     const tx1Box = document.getElementById('iso-tx1-box');
     const powerLine = document.getElementById('iso-power-line');
     const twinPill = document.getElementById('twin-alert-pill');
@@ -216,7 +212,6 @@ function runSimulation() {
         twinPill.className = 'text-xs bg-rose-500/20 border border-rose-500 text-rose-400 px-3 py-1 rounded-full font-bold animate-bounce';
         sysBadge.innerText = 'FAULT DETECTED: TX-1 ALERT';
         
-        // Update LSTM Chart to spike
         lstmChart.data.datasets[0].data = [15, 28, 45, 62, 78, 88, failureRisk];
         lstmChart.update();
     } else {
@@ -248,13 +243,12 @@ function resetSimulation() {
     runSimulation();
     addAlert('INFO', 'emerald', 'Simulation reset. All EHV parameters nominal.');
 }
+
 // =====================================================
 // 6. PYTHON FASTAPI BACKEND INTEGRATION (AUTO-DETECT)
 // =====================================================
-const API_BASE_URL = "http://127.0.0.1:8000";
 let backendConnected = false;
 
-// Poll Python FastAPI `/api/telemetry` every 2.5 seconds
 setInterval(async () => {
     if (isFaultInjected) return;
     try {
@@ -263,7 +257,6 @@ setInterval(async () => {
         const data = await res.json();
         backendConnected = true;
 
-        // Update UI with Real Python Backend Data
         document.getElementById('val-voltage').innerText = data.scada.voltage_kv;
         document.getElementById('val-current').innerText = data.scada.current_a;
         document.getElementById('val-power').innerText = data.scada.power_mw;
@@ -271,15 +264,12 @@ setInterval(async () => {
         document.getElementById('val-freq').innerText = `${data.scada.frequency_hz} Hz`;
         document.getElementById('system-status-text').innerText = "FASTAPI + ML ENGINE: LIVE";
     } catch (err) {
-        // Fallback to local JS simulator if Python server is not running
         backendConnected = false;
     }
 }, 2500);
 
-// Hook Simulator Sliders to Python `/api/simulate` ML Endpoint
 const originalRunSimulation = runSimulation;
 runSimulation = async function () {
-    // Run instant UI update first
     originalRunSimulation();
 
     const load = parseFloat(document.getElementById('slider-load').value);
@@ -296,15 +286,15 @@ runSimulation = async function () {
         const result = await res.json();
         const ai = result.ai_predictions;
 
-        // Override with true Scikit-Learn ML Model Predictions
         document.getElementById('sim-out-hotspot').innerText = `${ai.hotspot_temp_c} °C`;
         document.getElementById('sim-out-risk').innerText = `${ai.failure_prob_pct} %`;
         document.getElementById('sim-out-rul').innerText = `${ai.rul_days} Days`;
         document.getElementById('rul-badge').innerText = `ML RUL: ${ai.rul_days} Days`;
     } catch (e) {
-        // Silently use client-side physics engine if backend offline
+        // Fallback
     }
 };
+
 // =====================================================
 // 7. PDF / COMPLIANCE REPORT EXPORT FUNCTION
 // =====================================================
@@ -325,6 +315,6 @@ async function downloadPDFReport() {
         
         addAlert('INFO', 'emerald', 'Compliance & Health Report downloaded successfully.');
     } catch (err) {
-        alert("Make sure FastAPI backend (`uvicorn main:app --reload`) is running to export report!");
+        alert("Make sure FastAPI backend is running to export report!");
     }
 }
