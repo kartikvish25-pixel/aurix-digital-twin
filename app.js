@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://aurix-backend-jim2.onrender.com";
+const API_BASE_URL = "https://aurix-backend-jim2.onrender.com"; // updated
 
 // =====================================================
 // 1. TAB SWITCHING LOGIC
