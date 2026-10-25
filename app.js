@@ -1,3 +1,4 @@
+const API_BASE_URL = "https://aurix-backend-jim2.onrender.com";
 // =====================================================
 // 1. TAB SWITCHING LOGIC
 // =====================================================
@@ -304,3 +305,26 @@ runSimulation = async function () {
         // Silently use client-side physics engine if backend offline
     }
 };
+// =====================================================
+// 7. PDF / COMPLIANCE REPORT EXPORT FUNCTION
+// =====================================================
+async function downloadPDFReport() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/export-report`);
+        if (!response.ok) throw new Error("Failed to generate report");
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "AURIX_Substation_Compliance_Report.txt";
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+        
+        addAlert('INFO', 'emerald', 'Compliance & Health Report downloaded successfully.');
+    } catch (err) {
+        alert("Make sure FastAPI backend (`uvicorn main:app --reload`) is running to export report!");
+    }
+}
