@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Enabled Digital Twin - EHV 400/220 kV Substation | Team Patanjali</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN for Live Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-slate-950 border-b border-cyan-500/30 px-6 py-3 flex flex-wrap justify-between items-center sticky top-0 z-50 shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-400 font-bold text-xl shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+                <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-wide text-white flex items-center gap-2">
+                    EHV 400/220 kV Digital Twin 
+                    <span class="text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full">IEC 61850 / 62443</span>
+                </h1>
+                <p class="text-xs text-slate-400">AURIX Hackathon 2026 • Team Patanjali • IILM University</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs (Slide 6 Views) -->
+        <nav class="flex space-x-2 bg-slate-900 p-1 rounded-lg border border-slate-800 my-2 sm:my-0">
+            <button onclick="switchTab('telemetry')" id="tab-telemetry" class="tab-btn active-tab px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2">
+                <i class="fa-solid fa-gauge-high"></i> 1. Real-Time Telemetry
+            </button>
+            <button onclick="switchTab('ai-health')" id="tab-ai-health" class="tab-btn px-4 py-2 rounded-md text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center gap-2">
+                <i class="fa-solid fa-brain"></i> 2. AI Analytics & Health
+            </button>
+            <button onclick="switchTab('simulator')" id="tab-simulator" class="tab-btn px-4 py-2 rounded-md text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center gap-2">
+                <i class="fa-solid fa-cubes"></i> 3. 3D Twin Simulator
+            </button>
+        </nav>
+
+        <!-- Live System Status & PDF Export -->
+        <div class="flex items-center space-x-3">
+            <button onclick="downloadPDFReport()" class="bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400 text-cyan-300 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,211,238,0.2)]">
+                <i class="fa-solid fa-file-pdf text-cyan-400"></i> Export Compliance & Health Report
+            </button>
+            <div id="system-status-badge" class="hidden sm:flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 px-3 py-1.5 rounded-full text-xs font-semibold">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span id="system-status-text">SCADA SYNC: STABLE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="p-6 max-w-[1600px] mx-auto">
+
+        <!-- ==========================================
+             VIEW 1: REAL-TIME TELEMETRY & 2D SLD
+             ========================================== -->
+        <section id="view-telemetry" class="tab-content block space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left Column: Real-Time Telemetry Gauges (5 Cols) -->
+                <div class="lg:col-span-5 bg-slate-800/60 border border-slate-700/70 rounded-xl p-5 shadow-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-base font-semibold text-cyan-400 flex items-center gap-2">
+                            <i class="fa-solid fa-wave-square"></i> Real-Time SCADA Telemetry
+                        </h2>
+                        <span class="text-xs text-slate-400">Protocol: OPC-UA / MQTT</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Voltage Card -->
+                        <div class="bg-slate-900/80 border border-slate-700 p-4 rounded-xl text-center relative overflow-hidden">
+                            <p class="text-xs text-slate-400 uppercase">Bus Voltage (EHV)</p>
+                            <div class="my-3">
+                                <span id="val-voltage" class="text-3xl font-extrabold text-cyan-400">402.5</span>
+                                <span class="text-sm text-slate-400">kV</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div id="bar-voltage" class="bg-cyan-400 h-full transition-all duration-500" style="width: 85%"></div>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-2">Nominal: 400 kV (±5%)</p>
+                        </div>
+
+                        <!-- Current Card -->
+                        <div class="bg-slate-900/80 border border-slate-700 p-4 rounded-xl text-center">
+                            <p class="text-xs text-slate-400 uppercase">Line Current</p>
+                            <div class="my-3">
+                                <span id="val-current" class="text-3xl font-extrabold text-emerald-400">210.8</span>
+                                <span class="text-sm text-slate-400">A</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div id="bar-current" class="bg-emerald-400 h-full transition-all duration-500" style="width: 55%"></div>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-2">CT Ratio: 1000/1 A</p>
+                        </div>
+
+                        <!-- Active Power Card -->
+                        <div class="bg-slate-900/80 border border-slate-700 p-4 rounded-xl text-center">
+                            <p class="text-xs text-slate-400 uppercase">Active Power Flow</p>
+                            <div class="my-3">
+                                <span id="val-power" class="text-3xl font-extrabold text-purple-400">155.3</span>
+                                <span class="text-sm text-slate-400">MW</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div id="bar-power" class="bg-purple-400 h-full transition-all duration-500" style="width: 65%"></div>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-2">Rated: 240 MVA</p>
+                        </div>
+
+                        <!-- Power Factor & Frequency -->
+                        <div class="bg-slate-900/80 border border-slate-700 p-4 rounded-xl text-center">
+                            <p class="text-xs text-slate-400 uppercase">Power Factor / Freq</p>
+                            <div class="my-3">
+                                <span id="val-pf" class="text-3xl font-extrabold text-amber-400">0.85</span>
+                                <span id="val-freq" class="text-xs bg-slate-800 px-2 py-1 rounded text-slate-300 ml-1">50.0 Hz</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div id="bar-pf" class="bg-amber-400 h-full transition-all duration-500" style="width: 85%"></div>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-2">Grid Sync: Locked</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive 2D Single Line Diagram (SLD) (7 Cols) -->
+                <div class="lg:col-span-7 bg-slate-800/60 border border-slate-700/70 rounded-xl p-5 shadow-xl flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-base font-semibold text-cyan-400 flex items-center gap-2">
+                            <i class="fa-solid fa-project-diagram"></i> 2D Single Line Diagram (SLD) - 400/220 kV
+                        </h2>
+                        <span class="text-xs bg-slate-900 px-2.5 py-1 rounded text-slate-300 border border-slate-700">Live Topology</span>
+                    </div>
+
+                    <!-- SVG Interactive Substation SLD -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-lg p-4 my-2 flex items-center justify-center relative overflow-hidden">
+                        <svg viewBox="0 0 700 230" class="w-full h-auto max-h-[230px]">
+                            <!-- Incoming 400kV Bus -->
+                            <line x1="40" y1="40" x2="660" y2="40" stroke="#22d3ee" stroke-width="5" class="glow-line"/>
+                            <text x="45" y="25" fill="#22d3ee" font-size="12" font-weight="bold">400 kV MAIN BUSBAR</text>
+
+                            <!-- Feeder 1 (Transformer T1) -->
+                            <line x1="180" y1="40" x2="180" y2="80" stroke="#22d3ee" stroke-width="3"/>
+                            <!-- Breaker B1 -->
+                            <rect id="sld-breaker-1" x="168" y="80" width="24" height="24" fill="#10b981" rx="4"/>
+                            <text x="200" y="96" fill="#94a3b8" font-size="11">CB-1 (Closed)</text>
+                            <line x1="180" y1="104" x2="180" y2="125" stroke="#22d3ee" stroke-width="3"/>
+                            <!-- Transformer T1 Circles -->
+                            <circle id="sld-tx-1a" cx="180" cy="138" r="14" stroke="#22d3ee" stroke-width="3" fill="none"/>
+                            <circle id="sld-tx-1b" cx="180" cy="156" r="14" stroke="#10b981" stroke-width="3" fill="none"/>
+                            <text x="105" y="150" fill="#e2e8f0" font-size="12" font-weight="bold">TX-1 (315 MVA)</text>
+                            <line x1="180" y1="170" x2="180" y2="200" stroke="#10b981" stroke-width="3"/>
+
+                            <!-- Feeder 2 (Transformer T2 & Breaker B2) -->
+                            <line x1="480" y1="40" x2="480" y2="80" stroke="#22d3ee" stroke-width="3"/>
+                            <!-- Breaker B2 -->
+                            <rect id="sld-breaker-2" x="468" y="80" width="24" height="24" fill="#f59e0b" rx="4"/>
+                            <text x="500" y="96" fill="#fbbf24" font-size="11">CB-2 (Vibration Warn)</text>
+                            <line x1="480" y1="104" x2="480" y2="125" stroke="#22d3ee" stroke-width="3"/>
+                            <!-- Transformer T2 Circles -->
+                            <circle cx="480" cy="138" r="14" stroke="#22d3ee" stroke-width="3" fill="none"/>
+                            <circle cx="480" cy="156" r="14" stroke="#10b981" stroke-width="3" fill="none"/>
+                            <text x="505" y="150" fill="#e2e8f0" font-size="12" font-weight="bold">TX-2 (315 MVA)</text>
+                            <line x1="480" y1="170" x2="480" y2="200" stroke="#10b981" stroke-width="3"/>
+
+                            <!-- Outgoing 220kV Bus -->
+                            <line x1="80" y1="200" x2="620" y2="200" stroke="#10b981" stroke-width="5"/>
+                            <text x="85" y="220" fill="#10b981" font-size="12" font-weight="bold">220 kV DISTRIBUTION BUSBAR</text>
+                        </svg>
+                    </div>
+
+                    <!-- Bottom Impact Banner (From Slide 5 & 6) -->
+                    <div class="grid grid-cols-3 gap-3 text-center pt-1">
+                        <div class="bg-slate-900/90 border border-slate-700/80 py-2 px-3 rounded-lg flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-arrow-trend-down text-emerald-400"></i>
+                            <span class="text-xs text-slate-300">Downtime: <strong class="text-emerald-400">↓ 60%</strong></span>
+                        </div>
+                        <div class="bg-slate-900/90 border border-slate-700/80 py-2 px-3 rounded-lg flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-screwdriver-wrench text-cyan-400"></i>
+                            <span class="text-xs text-slate-300">O&M Cost: <strong class="text-cyan-400">↓ 30%</strong></span>
+                        </div>
+                        <div class="bg-slate-900/90 border border-slate-700/80 py-2 px-3 rounded-lg flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-leaf text-amber-400"></i>
+                            <span class="text-xs text-slate-300">Efficiency: <strong class="text-amber-400">↑ 15%</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Row: AI Insights Mini Charts + Live Alert Log -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-8 bg-slate-800/60 border border-slate-700/70 rounded-xl p-5">
+                    <h3 class="text-base font-semibold text-cyan-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line"></i> Live Telemetry Stream & Failure Probability (%)
+                    </h3>
+                    <div class="h-60">
+                        <canvas id="telemetryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Alert Log (Slide 6) -->
+                <div class="lg:col-span-4 bg-slate-800/60 border border-slate-700/70 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-base font-semibold text-rose-400 flex items-center gap-2">
+                                <i class="fa-solid fa-bell"></i> Real-Time Alert Log
+                            </h3>
+                            <span class="text-xs bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded">Live IED Events</span>
+                        </div>
+                        <div id="alert-log-list" class="space-y-2.5 max-h-52 overflow-y-auto pr-1">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-3 border-t border-slate-700 pt-2">
+                        CMMS Auto-Ticket Integration: <span class="text-emerald-400 font-semibold">Enabled</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==========================================
+             VIEW 2: AI ANALYTICS & ASSET HEALTH CENTER
+             ========================================== -->
+        <section id="view-ai-health" class="tab-content hidden space-y-6">
+            <!-- Top Equipment Health Overview Cards (Slide 6 Right Panel) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="bg-slate-800/70 border border-slate-700 p-4 rounded-xl">
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>Transformer T1</span>
+                        <span class="text-emerald-400">Optimal</span>
+                    </div>
+                    <div id="health-t1" class="text-2xl font-bold text-white mb-2">92%</div>
+                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div id="bar-health-t1" class="bg-emerald-400 h-full" style="width: 92%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/70 border border-amber-500/40 p-4 rounded-xl">
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>Circuit Breaker B2</span>
+                        <span class="text-amber-400">Warning</span>
+                    </div>
+                    <div id="health-b2" class="text-2xl font-bold text-amber-400 mb-2">78%</div>
+                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div id="bar-health-b2" class="bg-amber-400 h-full" style="width: 78%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/70 border border-slate-700 p-4 rounded-xl">
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>CT / CVT Units</span>
+                        <span class="text-cyan-400">Normal</span>
+                    </div>
+                    <div class="text-2xl font-bold text-white mb-2">88%</div>
+                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div class="bg-cyan-400 h-full" style="width: 88%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/70 border border-slate-700 p-4 rounded-xl">
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>Transformer T2</span>
+                        <span class="text-emerald-400">Optimal</span>
+                    </div>
+                    <div class="text-2xl font-bold text-white mb-2">94%</div>
+                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div class="bg-emerald-400 h-full" style="width: 94%"></div>
+                    </div>
+                </div>
+
+                <!-- Overall AI Insights Score -->
+                <div class="bg-gradient-to-br from-cyan-900/50 to-slate-900 border border-cyan-500/40 p-4 rounded-xl text-center">
+                    <p class="text-xs text-cyan-300 uppercase font-semibold">AI Substation Index</p>
+                    <div id="ai-overall-score" class="text-3xl font-extrabold text-white my-1">86%</div>
+                    <p class="text-[11px] text-slate-300">Model: Autoencoder + LSTM</p>
+                </div>
+            </div>
+
+            <!-- Predictive Analytics Graphs (RUL & Failure Probability) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-base font-semibold text-amber-400">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Failure Probability Over Time (LSTM Model)
+                        </h3>
+                        <span class="text-xs text-slate-400">Horizon: Next 30 Days</span>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="lstmFailureChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-base font-semibold text-emerald-400">
+                            <i class="fa-solid fa-hourglass-half"></i> Remaining Useful Life (RUL) Estimation
+                        </h3>
+                        <span id="rul-badge" class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded">Est. RUL: 185 Days</span>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="rulChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Fault Classification Table -->
+            <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                <h3 class="text-base font-semibold text-cyan-400 mb-3">
+                    <i class="fa-solid fa-microchip"></i> AI/ML Fault Detection & Diagnostic Table
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase">
+                                <th class="py-2.5 px-3">Timestamp</th>
+                                <th class="py-2.5 px-3">Equipment ID</th>
+                                <th class="py-2.5 px-3">AI Detected Anomaly</th>
+                                <th class="py-2.5 px-3">Severity</th>
+                                <th class="py-2.5 px-3">ML Confidence</th>
+                                <th class="py-2.5 px-3">Recommended Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ai-fault-table" class="divide-y divide-slate-800 text-slate-200">
+                            <tr>
+                                <td class="py-2.5 px-3 text-slate-400">14:32:10</td>
+                                <td class="py-2.5 px-3 font-medium">Transformer T1</td>
+                                <td class="py-2.5 px-3">Dissolved Gas (DGA) Thermal Spike</td>
+                                <td class="py-2.5 px-3"><span class="bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded text-xs">High</span></td>
+                                <td class="py-2.5 px-3 text-cyan-400 font-bold">94.2%</td>
+                                <td class="py-2.5 px-3 text-xs">Inspect Cooling Fans & Oil Pump</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 px-3 text-slate-400">13:45:02</td>
+                                <td class="py-2.5 px-3 font-medium">Breaker B2</td>
+                                <td class="py-2.5 px-3">Mechanical Contact Wear / Vibration</td>
+                                <td class="py-2.5 px-3"><span class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-xs">Medium</span></td>
+                                <td class="py-2.5 px-3 text-cyan-400 font-bold">89.5%</td>
+                                <td class="py-2.5 px-3 text-xs">Schedule Contact Lubrication</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 px-3 text-slate-400">12:18:44</td>
+                                <td class="py-2.5 px-3 font-medium">CVT-400-A</td>
+                                <td class="py-2.5 px-3">Minor Capacitance Drift</td>
+                                <td class="py-2.5 px-3"><span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-xs">Low</span></td>
+                                <td class="py-2.5 px-3 text-cyan-400 font-bold">81.0%</td>
+                                <td class="py-2.5 px-3 text-xs">Monitor during next load cycle</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==========================================
+             VIEW 3: LIVE 3D DIGITAL TWIN SIMULATOR
+             ========================================== -->
+        <section id="view-simulator" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left Asset Tree (3 Cols) -->
+                <div class="lg:col-span-3 bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                    <h3 class="text-sm font-semibold text-cyan-400 uppercase tracking-wider mb-3">
+                        <i class="fa-solid fa-sitemap"></i> Substation Asset Tree
+                    </h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="p-2.5 rounded-lg bg-slate-900 border border-cyan-500/40 flex justify-between items-center">
+                            <span><i class="fa-solid fa-cube text-cyan-400 mr-2"></i> <strong>Transformer T1</strong></span>
+                            <span id="tree-status-t1" class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">92%</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+                            <span><i class="fa-solid fa-cube text-cyan-400 mr-2"></i> Transformer T2</span>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">94%</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+                            <span><i class="fa-solid fa-toggle-on text-amber-400 mr-2"></i> SF6 Breaker B2</span>
+                            <span class="text-xs bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded">78%</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+                            <span><i class="fa-solid fa-tower-observation text-purple-400 mr-2"></i> 400kV Busbar</span>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">99%</span>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+                            <span><i class="fa-solid fa-shield-halved text-emerald-400 mr-2"></i> IED Relay Panel</span>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">Online</span>
+                        </div>
+                    </div>
+
+                    <!-- Simulation Output Box -->
+                    <div class="mt-6 p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                        <p class="text-xs text-slate-400 uppercase font-semibold">Twin Physics Engine Output</p>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Winding Hot-Spot:</span>
+                            <span id="sim-out-hotspot" class="font-bold text-cyan-400">78.4 °C</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Failure Risk:</span>
+                            <span id="sim-out-risk" class="font-bold text-emerald-400">12.5 %</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Predicted RUL:</span>
+                            <span id="sim-out-rul" class="font-bold text-white">185 Days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center 3D Isometric Digital Twin Canvas (6 Cols) -->
+                <div class="lg:col-span-6 bg-slate-950 border border-cyan-500/30 rounded-xl p-5 relative overflow-hidden flex flex-col justify-between min-h-[420px]">
+                    <div class="flex justify-between items-center z-10">
+                        <div>
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+                                Live 3D Isometric Substation Yard
+                            </h3>
+                            <p class="text-xs text-slate-400">Real-Time State Synchronization • OpenDSS Load Flow</p>
+                        </div>
+                        <span id="twin-alert-pill" class="text-xs bg-cyan-500/20 border border-cyan-400 text-cyan-300 px-3 py-1 rounded-full font-semibold">
+                            STATE: NORMAL OPERATION
+                        </span>
+                    </div>
+
+                    <!-- Isometric 3D Substation Graphic (Interactive SVG) -->
+                    <div class="my-auto flex items-center justify-center relative py-4">
+                        <svg viewBox="0 0 600 320" class="w-full h-auto max-h-[300px]">
+                            <!-- Isometric Grid Base -->
+                            <polygon points="300,30 560,160 300,290 40,160" fill="#0f172a" stroke="#1e293b" stroke-width="3"/>
+                            <!-- Grid Lines -->
+                            <line x1="170" y1="95" x2="430" y2="225" stroke="#1e293b" stroke-width="1.5"/>
+                            <line x1="430" y1="95" x2="170" y2="225" stroke="#1e293b" stroke-width="1.5"/>
+
+                            <!-- Glowing Power Lines on Yard -->
+                            <polyline id="iso-power-line" points="120,160 250,120 380,180 480,140" fill="none" stroke="#22d3ee" stroke-width="4" stroke-dasharray="8 4" class="animate-pulse"/>
+
+                            <!-- 3D Transformer T1 Block (Interactive Color) -->
+                            <g id="iso-tx1-group" transform="translate(200, 75)">
+                                <polygon id="iso-tx1-box" points="50,0 100,25 100,75 50,100 0,75 0,25" fill="#10b981" fill-opacity="0.25" stroke="#10b981" stroke-width="2.5"/>
+                                <line x1="50" y1="50" x2="50" y2="100" stroke="#10b981" stroke-width="2"/>
+                                <line x1="50" y1="50" x2="0" y2="25" stroke="#10b981" stroke-width="2"/>
+                                <line x1="50" y1="50" x2="100" y2="25" stroke="#10b981" stroke-width="2"/>
+                                <text x="20" y="-8" fill="#ffffff" font-size="11" font-weight="bold">TX-1 (400/220kV)</text>
+                            </g>
+
+                            <!-- 3D Transformer T2 Block -->
+                            <g transform="translate(340, 130)">
+                                <polygon points="45,0 90,22 90,68 45,90 0,68 0,22" fill="#06b6d4" fill-opacity="0.2" stroke="#22d3ee" stroke-width="2"/>
+                                <text x="22" y="-6" fill="#94a3b8" font-size="11" font-weight="bold">TX-2 (Healthy)</text>
+                            </g>
+
+                            <!-- Callout Overlay -->
+                            <g transform="translate(35, 40)">
+                                <rect x="0" y="0" width="145" height="52" rx="6" fill="#020617" stroke="#22d3ee" stroke-width="1"/>
+                                <text x="10" y="18" fill="#22d3ee" font-size="10" font-weight="bold">LIVE TELEMETRY TX-1</text>
+                                <text id="svg-tx1-temp" x="10" y="33" fill="#e2e8f0" font-size="10">Oil Temp: 68 °C</text>
+                                <text id="svg-tx1-load" x="10" y="46" fill="#10b981" font-size="10">Load: 75%</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="flex justify-between items-center text-xs text-slate-400 border-t border-slate-800 pt-2">
+                        <span>Simulation Latency: <strong class="text-cyan-400">18 ms</strong></span>
+                        <span>Model Accuracy: <strong class="text-emerald-400">96.4%</strong></span>
+                        <span>Active Sensors: <strong class="text-white">128 IEDs</strong></span>
+                    </div>
+                </div>
+
+                <!-- Right Simulation Control Panel (Sliders from Slide 6) (3 Cols) -->
+                <div class="lg:col-span-3 bg-slate-800/60 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-cyan-400 uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-sliders"></i> What-If Simulation Controls
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4">Adjust parameters to test AI fault prediction</p>
+
+                        <div class="space-y-4">
+                            <!-- Slider 1: Substation Load (%) -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-300">Substation Load (%)</span>
+                                    <span id="lbl-sim-load" class="font-bold text-cyan-400">75%</span>
+                                </div>
+                                <input id="slider-load" type="range" min="40" max="140" value="75" oninput="runSimulation()" class="w-full accent-cyan-400 cursor-pointer">
+                            </div>
+
+                            <!-- Slider 2: Transformer Oil Temp (°C) -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-300">TX-1 Oil Temperature (°C)</span>
+                                    <span id="lbl-sim-temp" class="font-bold text-amber-400">68 °C</span>
+                                </div>
+                                <input id="slider-temp" type="range" min="45" max="115" value="68" oninput="runSimulation()" class="w-full accent-amber-400 cursor-pointer">
+                            </div>
+
+                            <!-- Slider 3: Harmonic Distortion / Vibration -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-300">THD / Fault Harmonic (%)</span>
+                                    <span id="lbl-sim-thd" class="font-bold text-purple-400">2.5%</span>
+                                </div>
+                                <input id="slider-thd" type="range" min="1" max="15" step="0.5" value="2.5" oninput="runSimulation()" class="w-full accent-purple-400 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fault Injection Buttons -->
+                    <div class="space-y-2.5 mt-6">
+                        <button onclick="injectCriticalFault()" class="w-full py-2.5 px-4 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bolt-lightning"></i> Inject 400kV Overload Fault
+                        </button>
+                        <button onclick="resetSimulation()" class="w-full py-2 px-4 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium text-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-rotate-left"></i> Reset to Normal State
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
