@@ -24,7 +24,7 @@
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <h2 class="text-xl font-bold text-white">EHV Substation Secure Portal</h2>
-                <p class="text-xs text-slate-400 mt-1">AURIX Hackathon 2026 • Authorized Personnel Only[cite: 1, 2]</p>
+                <p class="text-xs text-slate-400 mt-1">AURIX Hackathon 2026 • Authorized Personnel Only</p>
             </div>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -63,22 +63,22 @@
                 <div>
                     <h1 class="text-base font-bold tracking-wide text-white flex items-center gap-2">
                         EHV 400/220 kV Digital Twin 
-                        <span class="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full hidden sm:inline-block">IEC 61850 / 62443[cite: 3, 6]</span>
+                        <span class="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full hidden sm:inline-block">IEC 61850 / 62443</span>
                     </h1>
-                    <p class="text-[11px] text-slate-400">AURIX Hackathon 2026 • Team Patanjali[cite: 1, 2]</p>
+                    <p class="text-[11px] text-slate-400">AURIX Hackathon 2026 • Team Patanjali</p>
                 </div>
             </div>
 
             <!-- Navigation Tabs -->
             <nav class="flex space-x-1.5 bg-slate-900 p-1 rounded-lg border border-slate-800">
                 <button onclick="switchTab('telemetry')" id="tab-telemetry" class="tab-btn active-tab px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-gauge-high"></i> 1. Telemetry[cite: 6]
+                    <i class="fa-solid fa-gauge-high"></i> 1. Telemetry
                 </button>
                 <button onclick="switchTab('ai-health')" id="tab-ai-health" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-brain"></i> 2. AI Health[cite: 3, 6]
+                    <i class="fa-solid fa-brain"></i> 2. AI Health
                 </button>
                 <button onclick="switchTab('simulator')" id="tab-simulator" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-cubes"></i> 3. 3D Simulator[cite: 3, 6]
+                    <i class="fa-solid fa-cubes"></i> 3. 3D Simulator
                 </button>
             </nav>
 
@@ -121,7 +121,7 @@
                                 <i class="fa-solid fa-wave-square text-cyan-400"></i> Real-Time SCADA Telemetry
                             </button>
                             <button onclick="switchSubView('telemetry', 'sld')" id="sub-btn-sld" class="w-full text-left p-2.5 rounded-lg sub-nav-btn text-slate-300 hover:bg-slate-700/50 flex items-center gap-2">
-                                <i class="fa-solid fa-project-diagram text-cyan-400"></i> 2D Single Line Diagram (SLD)[cite: 6]
+                                <i class="fa-solid fa-project-diagram text-cyan-400"></i> 2D Single Line Diagram (SLD)
                             </button>
                             <button onclick="switchSubView('telemetry', 'chart')" id="sub-btn-chart" class="w-full text-left p-2.5 rounded-lg sub-nav-btn text-slate-300 hover:bg-slate-700/50 flex items-center gap-2">
                                 <i class="fa-solid fa-chart-line text-cyan-400"></i> Live Telemetry Stream
@@ -176,7 +176,7 @@
                         <div id="sub-view-sld" class="sub-section hidden bg-slate-800/60 border border-slate-700/70 rounded-xl p-6 shadow-xl">
                             <div class="flex justify-between items-center mb-4">
                                 <h2 class="text-lg font-semibold text-cyan-400 flex items-center gap-2">
-                                    <i class="fa-solid fa-project-diagram"></i> 2D Single Line Diagram (SLD) - 400/220 kV Yard[cite: 6]
+                                    <i class="fa-solid fa-project-diagram"></i> 2D Single Line Diagram (SLD) - 400/220 kV Yard
                                 </h2>
                                 <span id="sld-status-tag" class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-full">All Feeders Energized</span>
                             </div>
@@ -184,7 +184,7 @@
                                 <svg viewBox="0 0 750 280" class="w-full h-auto max-h-[340px]">
                                     <!-- 400 kV Main Busbar -->
                                     <line x1="50" y1="45" x2="700" y2="45" stroke="#22d3ee" stroke-width="6" class="glow-line"/>
-                                    <text x="55" y="28" fill="#22d3ee" font-size="13" font-weight="bold">400 kV EHV MAIN BUSBAR (BUS-A)[cite: 6]</text>
+                                    <text x="55" y="28" fill="#22d3ee" font-size="13" font-weight="bold">400 kV EHV MAIN BUSBAR (BUS-A)</text>
 
                                     <!-- Bay 1: Transformer TX-1 -->
                                     <line x1="220" y1="45" x2="220" y2="85" stroke="#22d3ee" stroke-width="3"/>
@@ -210,7 +210,7 @@
 
                                     <!-- 220 kV Distribution Busbar -->
                                     <line x1="80" y1="230" x2="670" y2="230" stroke="#10b981" stroke-width="6"/>
-                                    <text x="85" y="255" fill="#10b981" font-size="13" font-weight="bold">220 kV OUTGOING DISTRIBUTION BUSBAR[cite: 6]</text>
+                                    <text x="85" y="255" fill="#10b981" font-size="13" font-weight="bold">220 kV OUTGOING DISTRIBUTION BUSBAR</text>
                                 </svg>
                             </div>
                         </div>
@@ -262,7 +262,7 @@
                                 <i class="fa-solid fa-heart-pulse text-emerald-400"></i> Equipment Health & Diagnostics
                             </button>
                             <button onclick="switchSubView('ai-health', 'graphs')" id="sub-btn-graphs" class="w-full text-left p-2.5 rounded-lg sub-nav-btn text-slate-300 hover:bg-slate-700/50 flex items-center gap-2">
-                                <i class="fa-solid fa-chart-area text-amber-400"></i> Failure Prob. & RUL Curves[cite: 3, 6]
+                                <i class="fa-solid fa-chart-area text-amber-400"></i> Failure Prob. & RUL Curves
                             </button>
                         </nav>
                     </aside>
@@ -311,11 +311,11 @@
 
                         <div id="sub-view-graphs" class="sub-section hidden space-y-6">
                             <div class="bg-slate-800/60 border border-slate-700 p-6 rounded-xl">
-                                <h3 class="text-base font-semibold text-amber-400 mb-4">Failure Probability Over Time (LSTM Forecast Model)[cite: 3, 6]</h3>
+                                <h3 class="text-base font-semibold text-amber-400 mb-4">Failure Probability Over Time (LSTM Forecast Model)</h3>
                                 <div class="h-72 relative"><canvas id="lstmFailureChart"></canvas></div>
                             </div>
                             <div class="bg-slate-800/60 border border-slate-700 p-6 rounded-xl">
-                                <h3 class="text-base font-semibold text-emerald-400 mb-4">Remaining Useful Life (RUL) Degradation Curve[cite: 3, 6]</h3>
+                                <h3 class="text-base font-semibold text-emerald-400 mb-4">Remaining Useful Life (RUL) Degradation Curve</h3>
                                 <div class="h-72 relative"><canvas id="rulChart"></canvas></div>
                             </div>
                         </div>
@@ -331,6 +331,14 @@
                     <button onclick="toggleSidebar('simulator')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2">
                         <i class="fa-solid fa-bars"></i> <span id="toggle-txt-simulator">Hide Menu</span>
                     </button>
+                    <div class="flex gap-2">
+                        <button onclick="injectCriticalFault()" class="py-1.5 px-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition flex items-center gap-1.5 shadow-lg shadow-rose-600/20">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Inject Critical Fault
+                        </button>
+                        <button onclick="resetSimulation()" class="py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium text-xs transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left"></i> Reset Twin
+                        </button>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -342,59 +350,170 @@
                         </div>
                         <nav class="space-y-1.5 text-xs">
                             <button onclick="switchSubView('simulator', 'yard')" id="sub-btn-yard" class="w-full text-left p-2.5 rounded-lg sub-nav-btn active-sub flex items-center gap-2">
-                                <i class="fa-solid fa-cube text-cyan-400"></i> Live 3D Isometric Yard[cite: 6]
+                                <i class="fa-solid fa-cube text-cyan-400"></i> Live 3D Isometric Yard
                             </button>
                             <button onclick="switchSubView('simulator', 'controls')" id="sub-btn-controls" class="w-full text-left p-2.5 rounded-lg sub-nav-btn text-slate-300 hover:bg-slate-700/50 flex items-center gap-2">
-                                <i class="fa-solid fa-sliders text-amber-400"></i> What-If Simulation Sliders[cite: 3, 6]
+                                <i class="fa-solid fa-sliders text-amber-400"></i> What-If Simulation Sliders
                             </button>
                         </nav>
                     </aside>
 
-                    <div id="content-simulator" class="lg:col-span-9 transition-all duration-300">
-                        <!-- Sub-View 1: Yard -->
-                        <div id="sub-view-yard" class="sub-section block bg-slate-950 border border-cyan-500/30 rounded-xl p-6 relative overflow-hidden shadow-xl min-h-[480px] flex flex-col justify-between">
+                    <div id="content-simulator" class="lg:col-span-9 transition-all duration-300 space-y-6">
+                        
+                        <!-- Sub-View 1: Complete 3D Isometric Yard -->
+                        <div id="sub-view-yard" class="sub-section block bg-slate-950 border border-cyan-500/30 rounded-xl p-6 relative overflow-hidden shadow-xl min-h-[500px] flex flex-col justify-between">
                             <div class="flex justify-between items-center z-10">
                                 <h3 class="text-base font-bold text-white flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span> Live 3D Isometric Substation Yard[cite: 6]
+                                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span> Live 3D Isometric Substation Yard (400/220 kV)
                                 </h3>
-                                <span id="twin-alert-pill" class="text-xs bg-cyan-500/25 border border-cyan-400 text-cyan-300 px-3 py-1 rounded-full font-semibold">STATE: NORMAL</span>
+                                <span id="twin-alert-pill" class="text-xs bg-cyan-500/25 border border-cyan-400 text-cyan-300 px-3 py-1 rounded-full font-semibold">STATE: NORMAL OPERATION</span>
                             </div>
-                            <div class="my-auto flex items-center justify-center py-6">
-                                <svg viewBox="0 0 600 320" class="w-full h-auto max-h-[320px]">
-                                    <polygon points="300,30 560,160 300,290 40,160" fill="#0f172a" stroke="#1e293b" stroke-width="3"/>
-                                    <g id="iso-tx1-group" transform="translate(200, 75)">
-                                        <polygon id="iso-tx1-box" points="50,0 100,25 100,75 50,100 0,75 0,25" fill="#10b981" fill-opacity="0.25" stroke="#10b981" stroke-width="2.5"/>
-                                        <text x="20" y="-8" fill="#ffffff" font-size="11" font-weight="bold">TX-1 (400/220kV)</text>
-                                        <text id="iso-tx1-temp-label" x="28" y="45" fill="#ecfdf5" font-size="11" font-weight="bold">68°C</text>
+
+                            <!-- Enhanced 3D Isometric SVG Topology -->
+                            <div class="my-auto flex items-center justify-center py-4">
+                                <svg viewBox="0 0 760 390" class="w-full h-auto max-h-[380px]">
+                                    <!-- Isometric Base Platform -->
+                                    <polygon points="380,25 720,195 380,365 40,195" fill="#0f172a" stroke="#1e293b" stroke-width="3"/>
+                                    
+                                    <!-- Isometric Grid Lines -->
+                                    <line x1="210" y1="110" x2="550" y2="280" stroke="#1e293b" stroke-width="1" stroke-dasharray="4 4"/>
+                                    <line x1="550" y1="110" x2="210" y2="280" stroke="#1e293b" stroke-width="1" stroke-dasharray="4 4"/>
+                                    <line x1="295" y1="68" x2="635" y2="238" stroke="#1e293b" stroke-width="1" stroke-dasharray="4 4"/>
+                                    <line x1="125" y1="152" x2="465" y2="322" stroke="#1e293b" stroke-width="1" stroke-dasharray="4 4"/>
+
+                                    <!-- 400 kV Incoming EHV Busbar (Top-Left Isometric Line) -->
+                                    <line x1="160" y1="125" x2="430" y2="260" stroke="#22d3ee" stroke-width="4" class="glow-line"/>
+                                    <text x="135" y="108" fill="#22d3ee" font-size="11" font-weight="bold">400 kV EHV INCOMING BUS</text>
+
+                                    <!-- 400 kV Input Gantry Tower (Top) -->
+                                    <g transform="translate(345, 45)">
+                                        <polygon points="25,0 50,15 25,30 0,15" fill="#0284c7" fill-opacity="0.3" stroke="#38bdf8" stroke-width="1.5"/>
+                                        <line x1="25" y1="0" x2="25" y2="-20" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="-15" y="-25" fill="#38bdf8" font-size="10" font-weight="bold">EHV GANTRY</text>
                                     </g>
+
+                                    <!-- Connect Bus to Breakers -->
+                                    <line x1="250" y1="170" x2="310" y2="140" stroke="#22d3ee" stroke-width="2.5"/>
+                                    <line x1="370" y1="230" x2="430" y2="200" stroke="#22d3ee" stroke-width="2.5"/>
+
+                                    <!-- Isometric Breaker CB-1 -->
+                                    <g transform="translate(230, 155)">
+                                        <polygon points="20,0 40,10 20,20 0,10" fill="#10b981" fill-opacity="0.4" stroke="#10b981" stroke-width="1.5"/>
+                                        <text x="-30" y="5" fill="#94a3b8" font-size="9" font-weight="bold">CB-1</text>
+                                    </g>
+
+                                    <!-- Isometric Breaker CB-B2 -->
+                                    <g transform="translate(350, 215)">
+                                        <polygon points="20,0 40,10 20,20 0,10" fill="#f59e0b" fill-opacity="0.4" stroke="#f59e0b" stroke-width="1.5"/>
+                                        <text x="-38" y="5" fill="#fcd34d" font-size="9" font-weight="bold">CB-B2</text>
+                                    </g>
+
+                                    <!-- 3D Isometric Transformer TX-1 (Primary Monitored Twin Asset) -->
+                                    <g id="iso-tx1-group" transform="translate(275, 85)">
+                                        <!-- Outer 3D Hexagon Cube -->
+                                        <polygon id="iso-tx1-box" points="50,0 100,25 100,80 50,105 0,80 0,25" fill="#10b981" fill-opacity="0.22" stroke="#10b981" stroke-width="2.5"/>
+                                        <!-- Inner 3D Isometric Edges (Required by app.js) -->
+                                        <polyline id="iso-tx1-inner1" points="0,25 50,50 100,25" fill="none" stroke="#10b981" stroke-width="1.8"/>
+                                        <line id="iso-tx1-inner2" x1="50" y1="50" x2="50" y2="105" stroke="#10b981" stroke-width="1.8"/>
+                                        <!-- Bushings -->
+                                        <line x1="35" y1="15" x2="35" y2="-5" stroke="#22d3ee" stroke-width="3"/>
+                                        <line x1="50" y1="22" x2="50" y2="2" stroke="#22d3ee" stroke-width="3"/>
+                                        <line x1="65" y1="15" x2="65" y2="-5" stroke="#22d3ee" stroke-width="3"/>
+                                        <!-- Labels -->
+                                        <text x="8" y="-12" fill="#ffffff" font-size="11" font-weight="bold">TX-1 (315 MVA)</text>
+                                        <text id="iso-tx1-temp-label" x="32" y="42" fill="#ecfdf5" font-size="12" font-weight="bold">68°C</text>
+                                    </g>
+
+                                    <!-- 3D Isometric Transformer TX-2 (Secondary Asset) -->
+                                    <g id="iso-tx2-group" transform="translate(415, 150)">
+                                        <polygon points="45,0 90,22 90,72 45,95 0,72 0,22" fill="#06b6d4" fill-opacity="0.18" stroke="#22d3ee" stroke-width="2"/>
+                                        <polyline points="0,22 45,45 90,22" fill="none" stroke="#22d3ee" stroke-width="1.5"/>
+                                        <line x1="45" y1="45" x2="45" y2="95" stroke="#22d3ee" stroke-width="1.5"/>
+                                        <line x1="32" y1="14" x2="32" y2="-4" stroke="#22d3ee" stroke-width="2.5"/>
+                                        <line x1="58" y1="14" x2="58" y2="-4" stroke="#22d3ee" stroke-width="2.5"/>
+                                        <text x="6" y="-10" fill="#cbd5e1" font-size="11" font-weight="bold">TX-2 (315 MVA)</text>
+                                        <text x="30" y="38" fill="#cffafe" font-size="11" font-weight="bold">64°C</text>
+                                    </g>
+
+                                    <!-- Outgoing Feeder Lines to 220 kV Bus -->
+                                    <line x1="375" y1="165" x2="455" y2="205" stroke="#10b981" stroke-width="2.5"/>
+                                    <line x1="505" y1="222" x2="575" y2="257" stroke="#10b981" stroke-width="2.5"/>
+
+                                    <!-- 220 kV Outgoing Distribution Busbar -->
+                                    <line x1="340" y1="285" x2="620" y2="145" stroke="#10b981" stroke-width="4"/>
+                                    <text x="470" y="305" fill="#10b981" font-size="11" font-weight="bold">220 kV OUTGOING BUSBAR</text>
                                 </svg>
+                            </div>
+
+                            <!-- Bottom Legend -->
+                            <div class="flex flex-wrap justify-between items-center text-[11px] text-slate-400 border-t border-slate-800/80 pt-3">
+                                <div class="flex items-center gap-4">
+                                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span> Normal (&lt;85°C)</span>
+                                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> Warning (THD / Stress)</span>
+                                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> Critical Overload (&ge;90°C)</span>
+                                </div>
+                                <span>Interactive Twin: Use <strong>What-If Sliders</strong> or <strong>Inject Critical Fault</strong></span>
                             </div>
                         </div>
 
-                        <!-- Sub-View 2: Sliders / Controls -->
+                        <!-- Sub-View 2: Sliders / Controls + Live Simulation Outputs -->
                         <div id="sub-view-controls" class="sub-section hidden bg-slate-800/60 border border-slate-700 rounded-xl p-6 shadow-xl space-y-6">
                             <div class="flex justify-between items-center">
-                                <h3 class="text-lg font-semibold text-cyan-400"><i class="fa-solid fa-sliders"></i> What-If Simulation Controls[cite: 3, 6]</h3>
+                                <h3 class="text-lg font-semibold text-cyan-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-sliders"></i> What-If Simulation Controls
+                                </h3>
                                 <div class="flex gap-2">
-                                    <button onclick="injectCriticalFault()" class="py-2.5 px-4 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition">Inject Fault</button>
-                                    <button onclick="resetSimulation()" class="py-2.5 px-4 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium text-xs transition">Reset</button>
+                                    <button onclick="injectCriticalFault()" class="py-2 px-4 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition">Inject Fault</button>
+                                    <button onclick="resetSimulation()" class="py-2 px-4 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium text-xs transition">Reset</button>
                                 </div>
                             </div>
+
+                            <!-- Sliders -->
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-900/80 p-5 rounded-xl border border-slate-700">
                                 <div>
-                                    <label class="text-xs text-slate-300 block mb-2">Substation Load (%) <span id="lbl-load" class="text-cyan-400 font-bold">75%</span></label>
+                                    <label class="text-xs text-slate-300 block mb-2">Substation Load (%) <span id="lbl-load" class="text-cyan-400 font-bold float-right">75%</span></label>
                                     <input id="slider-load" type="range" min="40" max="140" value="75" oninput="runSimulation()" class="w-full accent-cyan-400 cursor-pointer">
+                                    <div class="flex justify-between text-[10px] text-slate-500 mt-1"><span>40%</span><span>Nominal: 75%</span><span>140%</span></div>
                                 </div>
                                 <div>
-                                    <label class="text-xs text-slate-300 block mb-2">Top Oil Temperature (°C) <span id="lbl-temp" class="text-amber-400 font-bold">68°C</span></label>
+                                    <label class="text-xs text-slate-300 block mb-2">Top Oil Temperature (°C) <span id="lbl-temp" class="text-amber-400 font-bold float-right">68 °C</span></label>
                                     <input id="slider-temp" type="range" min="45" max="115" value="68" oninput="runSimulation()" class="w-full accent-amber-400 cursor-pointer">
+                                    <div class="flex justify-between text-[10px] text-slate-500 mt-1"><span>45°C</span><span>Alarm: 90°C</span><span>115°C</span></div>
                                 </div>
                                 <div>
-                                    <label class="text-xs text-slate-300 block mb-2">THD (%) <span id="lbl-thd" class="text-purple-400 font-bold">2.5%</span></label>
+                                    <label class="text-xs text-slate-300 block mb-2">Harmonic Distortion THD (%) <span id="lbl-thd" class="text-purple-400 font-bold float-right">2.5%</span></label>
                                     <input id="slider-thd" type="range" min="1.0" max="15.0" step="0.5" value="2.5" oninput="runSimulation()" class="w-full accent-purple-400 cursor-pointer">
+                                    <div class="flex justify-between text-[10px] text-slate-500 mt-1"><span>1.0%</span><span>Limit: 5.0%</span><span>15.0%</span></div>
                                 </div>
                             </div>
+
+                            <!-- Real-Time AI What-If Output Readout (Required by app.js) -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+                                    <p class="text-xs text-slate-400 uppercase">Simulated Hot-Spot Temp</p>
+                                    <p id="sim-out-hotspot" class="text-2xl font-bold text-amber-400 mt-1">82.1 °C</p>
+                                </div>
+                                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+                                    <p class="text-xs text-slate-400 uppercase">Predicted Failure Risk</p>
+                                    <p id="sim-out-risk" class="text-2xl font-bold text-rose-400 mt-1">12.4 %</p>
+                                </div>
+                                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+                                    <p class="text-xs text-slate-400 uppercase">Estimated RUL</p>
+                                    <p id="sim-out-rul" class="text-2xl font-bold text-emerald-400 mt-1">198 Days</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-950 border border-cyan-500/30 p-4 rounded-xl flex items-center justify-between">
+                                <div>
+                                    <span class="text-[10px] uppercase tracking-wider text-cyan-400 font-bold block">AI Simulator Diagnostic Prescription</span>
+                                    <p id="sim-action-box" class="text-xs text-slate-200 mt-1 font-medium">Normal Operating State: No Immediate Maintenance Required. Cooling bank on standby.</p>
+                                </div>
+                                <button onclick="switchSubView('simulator', 'yard')" class="text-xs bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400 text-cyan-300 px-3 py-1.5 rounded-lg font-semibold transition shrink-0">
+                                    View on 3D Yard &rarr;
+                                </button>
+                            </div>
                         </div>
+
                     </div>
 
                 </div>
