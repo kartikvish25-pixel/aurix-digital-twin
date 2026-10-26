@@ -3,7 +3,6 @@
 // =====================================================
 const API_BASE_URL = "http://127.0.0.1:8000";
 
-// Latest state cache for instant report generation
 let latestTelemetryState = {
     timestamp: new Date().toLocaleTimeString(),
     scada: { voltage_kv: 402.5, current_a: 210.8, power_mw: 125.3, power_factor: 0.86, frequency_hz: 50.00 },
@@ -271,7 +270,6 @@ async function fetchLiveTelemetry() {
         latestTelemetryState = data;
         updateDashboardUI(data, true);
     } catch (err) {
-        // Fallback local edge simulation if FastAPI server isn't running
         const voltage = +(399.0 + Math.random() * 4.2).toFixed(1);
         const current = +(205.0 + Math.random() * 12.0).toFixed(1);
         const pf = +(0.85 + Math.random() * 0.04).toFixed(2);
@@ -298,7 +296,6 @@ function updateDashboardUI(data, isBackendConnected) {
         ? "SCADA + AI API: ONLINE"
         : "SCADA EDGE SIM: ACTIVE";
 
-    // Update Gauges
     document.getElementById('val-voltage').innerText = scada.voltage_kv;
     document.getElementById('val-current').innerText = scada.current_a;
     document.getElementById('val-power').innerText = scada.power_mw;
@@ -310,7 +307,6 @@ function updateDashboardUI(data, isBackendConnected) {
     document.getElementById('bar-power').style.width = `${Math.min(100, (scada.power_mw / 200) * 100)}%`;
     document.getElementById('bar-pf').style.width = `${Math.min(100, scada.power_factor * 100)}%`;
 
-    // Push new data point to Live Telemetry Chart
     telemetryChart.data.labels.shift();
     telemetryChart.data.labels.push(data.timestamp);
     telemetryChart.data.datasets[0].data.shift();
@@ -319,7 +315,6 @@ function updateDashboardUI(data, isBackendConnected) {
     telemetryChart.data.datasets[1].data.push(scada.power_mw);
     telemetryChart.update('none');
 
-    // Update AI Health Tab if backend sent predictions
     if (ai_predictions) {
         updateAIPanel(ai_predictions);
     }
@@ -374,7 +369,6 @@ async function runSimulation() {
         const data = await res.json();
         aiResult = data.ai_predictions;
     } catch (e) {
-        // Local Edge formula matching ml_engine.py
         const vibration = +(3.0 + (load * 0.04) + (thd * 0.6)).toFixed(2);
         const failure_prob = +Math.min(99.0, Math.max(2.0, (load - 50) * 0.45 + (temp - 55) * 1.15 + (thd * 2.1) + (vibration * 1.2))).toFixed(1);
         const rul_days = Math.max(3, Math.floor(225 - (failure_prob * 2.15)));
@@ -409,13 +403,11 @@ async function runSimulation() {
     latestTelemetryState.ai_predictions = aiResult;
     updateAIPanel(aiResult);
 
-    // Update Simulator Outputs
     document.getElementById('sim-out-hotspot').innerText = `${aiResult.hotspot_temp_c} °C`;
     document.getElementById('sim-out-risk').innerText = `${aiResult.failure_prob_pct} %`;
     document.getElementById('sim-out-rul').innerText = `${aiResult.rul_days} Days`;
     document.getElementById('sim-action-box').innerText = `${aiResult.fault_classification}: ${aiResult.recommended_action}`;
 
-    // Update 3D Yard & 2D SLD Colors
     const tx1Box = document.getElementById('iso-tx1-box');
     const inner1 = document.getElementById('iso-tx1-inner1');
     const inner2 = document.getElementById('iso-tx1-inner2');
@@ -489,9 +481,7 @@ async function downloadPDFReport() {
             a.remove();
             return;
         }
-    } catch (err) {
-        // Fallback client-side report generation when hosted on Vercel static
-    }
+    } catch (err) {}
 
     const { scada, ai_predictions, timestamp } = latestTelemetryState;
     const reportContent = `====================================================================
