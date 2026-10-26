@@ -24,7 +24,7 @@
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <h2 class="text-xl font-bold text-white">EHV Substation Secure Portal</h2>
-                <p class="text-xs text-slate-400 mt-1">AURIX Hackathon 2026 • Authorized Personnel Only</p>
+                <p class="text-xs text-slate-400 mt-1">AURIX Hackathon 2026 • Authorized Personnel Only[cite: 1, 2]</p>
             </div>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
@@ -63,22 +63,22 @@
                 <div>
                     <h1 class="text-lg font-bold tracking-wide text-white flex items-center gap-2">
                         EHV 400/220 kV Digital Twin 
-                        <span class="text-[11px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2.5 py-0.5 rounded-full">IEC 61850 / 62443</span>
+                        <span class="text-[11px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2.5 py-0.5 rounded-full">IEC 61850 / 62443[cite: 3, 6]</span>
                     </h1>
-                    <p class="text-xs text-slate-400">AURIX Hackathon 2026 • Team Patanjali • IILM University</p>
+                    <p class="text-xs text-slate-400">AURIX Hackathon 2026 • Team Patanjali • IILM University[cite: 1, 2]</p>
                 </div>
             </div>
 
             <!-- Navigation Tabs -->
             <nav class="flex space-x-2 bg-slate-900 p-1 rounded-lg border border-slate-800">
                 <button onclick="switchTab('telemetry')" id="tab-telemetry" class="tab-btn active-tab px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-gauge-high"></i> 1. Real-Time Telemetry
+                    <i class="fa-solid fa-gauge-high"></i> 1. Real-Time Telemetry[cite: 6]
                 </button>
                 <button onclick="switchTab('ai-health')" id="tab-ai-health" class="tab-btn px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-brain"></i> 2. AI Analytics & Health
+                    <i class="fa-solid fa-brain"></i> 2. AI Analytics & Health[cite: 3, 6]
                 </button>
                 <button onclick="switchTab('simulator')" id="tab-simulator" class="tab-btn px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-cubes"></i> 3. 3D Twin Simulator
+                    <i class="fa-solid fa-cubes"></i> 3. 3D Twin Simulator[cite: 3, 6]
                 </button>
             </nav>
 
@@ -121,7 +121,7 @@
                                 <i class="fa-solid fa-wave-square text-cyan-400"></i> Real-Time SCADA Telemetry
                             </button>
                             <button onclick="switchSubView('telemetry', 'sld')" id="sub-btn-sld" class="w-full text-left p-2.5 rounded-lg sub-nav-btn text-slate-300 hover:bg-slate-700/50 flex items-center gap-2">
-                                <i class="fa-solid fa-project-diagram text-cyan-400"></i> 2D Single Line Diagram (SLD)
+                                <i class="fa-solid fa-project-diagram text-cyan-400"></i> 2D Single Line Diagram (SLD)[cite: 6]
                             </button>
                             <button onclick="switchSubView('telemetry', 'chart')" id="sub-btn-chart" class="w-full text-left p-2.5 rounded-lg sub-nav-btn text-slate-300 hover:bg-slate-700/50 flex items-center gap-2">
                                 <i class="fa-solid fa-chart-line text-cyan-400"></i> Live Telemetry Stream
@@ -176,7 +176,7 @@
                         <div id="sub-view-sld" class="sub-section hidden bg-slate-800/60 border border-slate-700/70 rounded-xl p-6 shadow-xl">
                             <div class="flex justify-between items-center mb-4">
                                 <h2 class="text-lg font-semibold text-cyan-400 flex items-center gap-2">
-                                    <i class="fa-solid fa-project-diagram"></i> 2D Single Line Diagram (SLD) - 400/220 kV Yard
+                                    <i class="fa-solid fa-project-diagram"></i> 2D Single Line Diagram (SLD) - 400/220 kV Yard[cite: 6]
                                 </h2>
                                 <span id="sld-status-tag" class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-full">All Feeders Energized</span>
                             </div>
@@ -184,7 +184,7 @@
                                 <svg viewBox="0 0 750 280" class="w-full h-auto max-h-[340px]">
                                     <!-- 400 kV Main Busbar -->
                                     <line x1="50" y1="45" x2="700" y2="45" stroke="#22d3ee" stroke-width="6" class="glow-line"/>
-                                    <text x="55" y="28" fill="#22d3ee" font-size="13" font-weight="bold">400 kV EHV MAIN BUSBAR (BUS-A)</text>
+                                    <text x="55" y="28" fill="#22d3ee" font-size="13" font-weight="bold">400 kV EHV MAIN BUSBAR (BUS-A)[cite: 6]</text>
 
                                     <!-- Bay 1: Transformer TX-1 -->
                                     <line x1="220" y1="45" x2="220" y2="85" stroke="#22d3ee" stroke-width="3"/>
@@ -210,7 +210,7 @@
 
                                     <!-- 220 kV Distribution Busbar -->
                                     <line x1="80" y1="230" x2="670" y2="230" stroke="#10b981" stroke-width="6"/>
-                                    <text x="85" y="255" fill="#10b981" font-size="13" font-weight="bold">220 kV OUTGOING DISTRIBUTION BUSBAR</text>
+                                    <text x="85" y="255" fill="#10b981" font-size="13" font-weight="bold">220 kV OUTGOING DISTRIBUTION BUSBAR[cite: 6]</text>
                                 </svg>
                             </div>
                         </div>
@@ -262,7 +262,7 @@
                                 <i class="fa-solid fa-heart-pulse text-emerald-400"></i> Equipment Health & Diagnostics
                             </button>
                             <button onclick="switchSubView('ai-health', 'graphs')" id="sub-btn-graphs" class="w-full text-left p-2.5 rounded-lg sub-nav-btn text-slate-300 hover:bg-slate-700/50 flex items-center gap-2">
-                                <i class="fa-solid fa-chart-area text-amber-400"></i> Failure Prob. & RUL Curves
+                                <i class="fa-solid fa-chart-area text-amber-400"></i> Failure Prob. & RUL Curves[cite: 3, 6]
                             </button>
                         </nav>
                     </aside>
@@ -311,11 +311,11 @@
 
                         <div id="sub-view-graphs" class="sub-section hidden space-y-6">
                             <div class="bg-slate-800/60 border border-slate-700 p-6 rounded-xl">
-                                <h3 class="text-base font-semibold text-amber-400 mb-4">Failure Probability Over Time (LSTM Forecast Model)</h3>
+                                <h3 class="text-base font-semibold text-amber-400 mb-4">Failure Probability Over Time (LSTM Forecast Model)[cite: 3, 6]</h3>
                                 <div class="h-72 relative"><canvas id="lstmFailureChart"></canvas></div>
                             </div>
                             <div class="bg-slate-800/60 border border-slate-700 p-6 rounded-xl">
-                                <h3 class="text-base font-semibold text-emerald-400 mb-4">Remaining Useful Life (RUL) Degradation Curve</h3>
+                                <h3 class="text-base font-semibold text-emerald-400 mb-4">Remaining Useful Life (RUL) Degradation Curve[cite: 3, 6]</h3>
                                 <div class="h-72 relative"><canvas id="rulChart"></canvas></div>
                             </div>
                         </div>
@@ -324,7 +324,7 @@
             </section>
 
             <!-- ================================================================= -->
-            <!-- VIEW 3: 3D TWIN SIMULATOR (WITH SIDEBAR)                         -->
+            <!-- VIEW 3: 3D TWIN SIMULATOR (WITH SIDEBAR & SUB-VIEWS)             -->
             <!-- ================================================================= -->
             <section id="view-simulator" class="tab-content hidden">
                 <div class="flex justify-between items-center mb-4">
@@ -342,19 +342,20 @@
                         </div>
                         <nav class="space-y-1.5 text-xs">
                             <button onclick="switchSubView('simulator', 'yard')" id="sub-btn-yard" class="w-full text-left p-2.5 rounded-lg sub-nav-btn active-sub flex items-center gap-2">
-                                <i class="fa-solid fa-cube text-cyan-400"></i> Live 3D Isometric Yard
+                                <i class="fa-solid fa-cube text-cyan-400"></i> Live 3D Isometric Yard[cite: 6]
                             </button>
                             <button onclick="switchSubView('simulator', 'controls')" id="sub-btn-controls" class="w-full text-left p-2.5 rounded-lg sub-nav-btn text-slate-300 hover:bg-slate-700/50 flex items-center gap-2">
-                                <i class="fa-solid fa-sliders text-amber-400"></i> What-If Simulation Sliders
+                                <i class="fa-solid fa-sliders text-amber-400"></i> What-If Simulation Sliders[cite: 3, 6]
                             </button>
                         </nav>
                     </aside>
 
                     <div id="content-simulator" class="lg:col-span-9 transition-all duration-300">
+                        <!-- Sub-View 1: Yard -->
                         <div id="sub-view-yard" class="sub-section block bg-slate-950 border border-cyan-500/30 rounded-xl p-6 relative overflow-hidden shadow-xl min-h-[480px] flex flex-col justify-between">
                             <div class="flex justify-between items-center z-10">
                                 <h3 class="text-base font-bold text-white flex items-center gap-2">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span> Live 3D Isometric Substation Yard
+                                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span> Live 3D Isometric Substation Yard[cite: 6]
                                 </h3>
                                 <span id="twin-alert-pill" class="text-xs bg-cyan-500/25 border border-cyan-400 text-cyan-300 px-3 py-1 rounded-full font-semibold">STATE: NORMAL</span>
                             </div>
@@ -370,9 +371,10 @@
                             </div>
                         </div>
 
+                        <!-- Sub-View 2: Sliders / Controls -->
                         <div id="sub-view-controls" class="sub-section hidden bg-slate-800/60 border border-slate-700 rounded-xl p-6 shadow-xl space-y-6">
                             <div class="flex justify-between items-center">
-                                <h3 class="text-lg font-semibold text-cyan-400"><i class="fa-solid fa-sliders"></i> What-If Simulation Controls</h3>
+                                <h3 class="text-lg font-semibold text-cyan-400"><i class="fa-solid fa-sliders"></i> What-If Simulation Controls[cite: 3, 6]</h3>
                                 <div class="flex gap-2">
                                     <button onclick="injectCriticalFault()" class="py-2.5 px-4 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition">Inject Fault</button>
                                     <button onclick="resetSimulation()" class="py-2.5 px-4 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium text-xs transition">Reset</button>
