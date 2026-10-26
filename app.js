@@ -262,13 +262,20 @@ renderAlerts();
 // =====================================================
 // 5. LIVE TELEMETRY STREAM (FASTAPI + FALLBACK)
 // =====================================================
+let isManualSimulationActive = false;
+
 async function fetchLiveTelemetry() {
     try {
         const res = await fetch(`${API_BASE_URL}/api/telemetry`);
         if (!res.ok) throw new Error("Backend offline");
         const data = await res.json();
-        latestTelemetryState = data;
-        updateDashboardUI(data, true);
+        if (!isManualSimulationActive) {
+            latestTelemetryState = data;
+        } else {
+            latestTelemetryState.timestamp = data.timestamp;
+            latestTelemetryState.scada = data.scada;
+        }
+        updateDashboardUI(latestTelemetryState, true);
     } catch (err) {
         const voltage = +(399.0 + Math.random() * 4.2).toFixed(1);
         const current = +(205.0 + Math.random() * 12.0).toFixed(1);
@@ -307,6 +314,14 @@ function updateDashboardUI(data, isBackendConnected) {
     document.getElementById('bar-power').style.width = `${Math.min(100, (scada.power_mw / 200) * 100)}%`;
     document.getElementById('bar-pf').style.width = `${Math.min(100, scada.power_factor * 100)}%`;
 
+    // Sync Live Readings on 2D SLD IED Callout Box
+    const sldBusKv = document.getElementById('sld-bus-kv');
+    const sldTx1Mw = document.getElementById('sld-tx1-mw');
+    const sldTx1Amp = document.getElementById('sld-tx1-amp');
+    if (sldBusKv) sldBusKv.textContent = `V: ${scada.voltage_kv} kV | ${scada.frequency_hz}Hz`;
+    if (sldTx1Mw) sldTx1Mw.textContent = `${scada.power_mw} MW`;
+    if (sldTx1Amp) sldTx1Amp.textContent = `${scada.current_a} A`;
+
     telemetryChart.data.labels.shift();
     telemetryChart.data.labels.push(data.timestamp);
     telemetryChart.data.datasets[0].data.shift();
@@ -325,6 +340,9 @@ function updateAIPanel(ai) {
     document.getElementById('ai-hotspot-temp').innerText = `${ai.hotspot_temp_c} °C`;
     document.getElementById('ai-fail-prob').innerText = `${ai.failure_prob_pct}%`;
     document.getElementById('ai-rul-days').innerText = `${ai.rul_days} Days`;
+
+    const sldTx1Temp = document.getElementById('sld-tx1-temp');
+    if (sldTx1Temp) sldTx1Temp.textContent = `${ai.hotspot_temp_c} °C`;
 
     document.getElementById('ai-fault-title').innerText = `Diagnostic State: ${ai.fault_classification}`;
     document.getElementById('ai-fault-action').innerText = `Recommended Action: ${ai.recommended_action}`;
@@ -348,6 +366,8 @@ setInterval(fetchLiveTelemetry, 2500);
 // 6. 3D TWIN SIMULATOR & WHAT-IF ENGINE
 // =====================================================
 async function runSimulation() {
+    isManualSimulationActive = true;
+
     const load = parseFloat(document.getElementById('slider-load').value);
     const temp = parseFloat(document.getElementById('slider-temp').value);
     const thd = parseFloat(document.getElementById('slider-thd').value);
@@ -355,7 +375,9 @@ async function runSimulation() {
     document.getElementById('lbl-load').innerText = `${load}%`;
     document.getElementById('lbl-temp').innerText = `${temp} °C`;
     document.getElementById('lbl-thd').innerText = `${thd}%`;
-    document.getElementById('iso-tx1-temp-label').textContent = `${temp}°C`;
+    
+    const tempLabel = document.getElementById('iso-tx1-temp-label');
+    if (tempLabel) tempLabel.textContent = `${temp}°C`;
 
     let aiResult;
 
@@ -403,48 +425,93 @@ async function runSimulation() {
     latestTelemetryState.ai_predictions = aiResult;
     updateAIPanel(aiResult);
 
-    document.getElementById('sim-out-hotspot').innerText = `${aiResult.hotspot_temp_c} °C`;
-    document.getElementById('sim-out-risk').innerText = `${aiResult.failure_prob_pct} %`;
-    document.getElementById('sim-out-rul').innerText = `${aiResult.rul_days} Days`;
-    document.getElementById('sim-action-box').innerText = `${aiResult.fault_classification}: ${aiResult.recommended_action}`;
+    const simHotspot = document.getElementById('sim-out-hotspot');
+    const simRisk = document.getElementById('sim-out-risk');
+    const simRul = document.getElementById('sim-out-rul');
+    const simAction = document.getElementById('sim-action-box');
 
+    if (simHotspot) simHotspot.innerText = `${aiResult.hotspot_temp_c} °C`;
+    if (simRisk) simRisk.innerText = `${aiResult.failure_prob_pct} %`;
+    if (simRul) simRul.innerText = `${aiResult.rul_days} Days`;
+    if (simAction) simAction.innerText = `${aiResult.fault_classification}: ${aiResult.recommended_action}`;
+
+    // 3D Yard & 2D SLD Elements
     const tx1Box = document.getElementById('iso-tx1-box');
     const inner1 = document.getElementById('iso-tx1-inner1');
     const inner2 = document.getElementById('iso-tx1-inner2');
     const twinPill = document.getElementById('twin-alert-pill');
     const sldBreaker1 = document.getElementById('sld-breaker-1');
     const sldCb1Txt = document.getElementById('sld-cb1-txt');
+    const sldTx1Top = document.getElementById('sld-tx1-top');
+    const sldTx1Bot = document.getElementById('sld-tx1-bot');
+    const sldStatusTag = document.getElementById('sld-status-tag');
 
     if (aiResult.severity === "CRITICAL") {
-        tx1Box.setAttribute('stroke', '#f43f5e');
-        tx1Box.setAttribute('fill', '#f43f5e');
-        inner1.setAttribute('stroke', '#f43f5e');
-        inner2.setAttribute('stroke', '#f43f5e');
-        twinPill.innerText = 'CRITICAL: OVERLOAD FAULT!';
-        twinPill.className = 'text-xs bg-rose-500/25 border border-rose-500 text-rose-400 px-3 py-1 rounded-full font-bold animate-pulse';
-
+        if (tx1Box) {
+            tx1Box.setAttribute('stroke', '#f43f5e');
+            tx1Box.setAttribute('fill', '#f43f5e');
+        }
+        if (inner1) inner1.setAttribute('stroke', '#f43f5e');
+        if (inner2) inner2.setAttribute('stroke', '#f43f5e');
+        if (twinPill) {
+            twinPill.innerText = 'CRITICAL: OVERLOAD FAULT!';
+            twinPill.className = 'text-xs bg-rose-500/25 border border-rose-500 text-rose-400 px-3 py-1 rounded-full font-bold animate-pulse';
+        }
         if (sldBreaker1) sldBreaker1.setAttribute('fill', '#f43f5e');
-        if (sldCb1Txt) sldCb1Txt.textContent = 'CB-1 (TRIPPED)';
+        if (sldCb1Txt) {
+            sldCb1Txt.textContent = 'CB-1 (TRIPPED)';
+            sldCb1Txt.setAttribute('fill', '#fda4af');
+        }
+        if (sldTx1Top) sldTx1Top.setAttribute('stroke', '#f43f5e');
+        if (sldTx1Bot) sldTx1Bot.setAttribute('stroke', '#f43f5e');
+        if (sldStatusTag) {
+            sldStatusTag.innerText = 'CRITICAL: TX-1 OVERLOAD / CB-1 TRIPPED';
+            sldStatusTag.className = 'text-xs bg-rose-500/20 text-rose-400 border border-rose-500/40 px-3 py-1 rounded-full font-bold animate-pulse';
+        }
     } else if (aiResult.severity === "WARNING") {
-        tx1Box.setAttribute('stroke', '#f59e0b');
-        tx1Box.setAttribute('fill', '#f59e0b');
-        inner1.setAttribute('stroke', '#f59e0b');
-        inner2.setAttribute('stroke', '#f59e0b');
-        twinPill.innerText = 'WARNING: ELEVATED STRESS';
-        twinPill.className = 'text-xs bg-amber-500/25 border border-amber-400 text-amber-300 px-3 py-1 rounded-full font-semibold';
-
+        if (tx1Box) {
+            tx1Box.setAttribute('stroke', '#f59e0b');
+            tx1Box.setAttribute('fill', '#f59e0b');
+        }
+        if (inner1) inner1.setAttribute('stroke', '#f59e0b');
+        if (inner2) inner2.setAttribute('stroke', '#f59e0b');
+        if (twinPill) {
+            twinPill.innerText = 'WARNING: ELEVATED STRESS';
+            twinPill.className = 'text-xs bg-amber-500/25 border border-amber-400 text-amber-300 px-3 py-1 rounded-full font-semibold';
+        }
         if (sldBreaker1) sldBreaker1.setAttribute('fill', '#f59e0b');
-        if (sldCb1Txt) sldCb1Txt.textContent = 'CB-1 (ALARM)';
+        if (sldCb1Txt) {
+            sldCb1Txt.textContent = 'CB-1 (ALARM)';
+            sldCb1Txt.setAttribute('fill', '#fcd34d');
+        }
+        if (sldTx1Top) sldTx1Top.setAttribute('stroke', '#f59e0b');
+        if (sldTx1Bot) sldTx1Bot.setAttribute('stroke', '#f59e0b');
+        if (sldStatusTag) {
+            sldStatusTag.innerText = 'WARNING: HARMONIC / THERMAL STRESS';
+            sldStatusTag.className = 'text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full font-semibold';
+        }
     } else {
-        tx1Box.setAttribute('stroke', '#10b981');
-        tx1Box.setAttribute('fill', '#10b981');
-        inner1.setAttribute('stroke', '#10b981');
-        inner2.setAttribute('stroke', '#10b981');
-        twinPill.innerText = 'STATE: NORMAL OPERATION';
-        twinPill.className = 'text-xs bg-cyan-500/25 border border-cyan-400 text-cyan-300 px-3 py-1 rounded-full font-semibold';
-
+        if (tx1Box) {
+            tx1Box.setAttribute('stroke', '#10b981');
+            tx1Box.setAttribute('fill', '#10b981');
+        }
+        if (inner1) inner1.setAttribute('stroke', '#10b981');
+        if (inner2) inner2.setAttribute('stroke', '#10b981');
+        if (twinPill) {
+            twinPill.innerText = 'STATE: NORMAL OPERATION';
+            twinPill.className = 'text-xs bg-cyan-500/25 border border-cyan-400 text-cyan-300 px-3 py-1 rounded-full font-semibold';
+        }
         if (sldBreaker1) sldBreaker1.setAttribute('fill', '#10b981');
-        if (sldCb1Txt) sldCb1Txt.textContent = 'CB-1 (CLOSED)';
+        if (sldCb1Txt) {
+            sldCb1Txt.textContent = 'CB-1 (CLOSED)';
+            sldCb1Txt.setAttribute('fill', '#e2e8f0');
+        }
+        if (sldTx1Top) sldTx1Top.setAttribute('stroke', '#22d3ee');
+        if (sldTx1Bot) sldTx1Bot.setAttribute('stroke', '#10b981');
+        if (sldStatusTag) {
+            sldStatusTag.innerText = 'All Feeders Energized';
+            sldStatusTag.className = 'text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full font-semibold';
+        }
     }
 }
 
@@ -457,10 +524,12 @@ function injectCriticalFault() {
 }
 
 function resetSimulation() {
+    isManualSimulationActive = false;
     document.getElementById('slider-load').value = 75;
     document.getElementById('slider-temp').value = 68;
     document.getElementById('slider-thd').value = 2.5;
     runSimulation();
+    isManualSimulationActive = false;
     addAlert('INFO', 'cyan', 'Simulation Reset to Nominal Operating Parameters');
 }
 

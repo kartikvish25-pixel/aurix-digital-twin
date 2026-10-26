@@ -172,46 +172,218 @@
                             </div>
                         </div>
 
-                        <!-- Sub-View 2: 2D SLD -->
-                        <div id="sub-view-sld" class="sub-section hidden bg-slate-800/60 border border-slate-700/70 rounded-xl p-6 shadow-xl">
-                            <div class="flex justify-between items-center mb-4">
-                                <h2 class="text-lg font-semibold text-cyan-400 flex items-center gap-2">
-                                    <i class="fa-solid fa-project-diagram"></i> 2D Single Line Diagram (SLD) - 400/220 kV Yard
-                                </h2>
-                                <span id="sld-status-tag" class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-full">All Feeders Energized</span>
+                        <!-- Sub-View 2: Upgraded Industrial 2D SLD -->
+                        <div id="sub-view-sld" class="sub-section hidden bg-slate-800/60 border border-slate-700/70 rounded-xl p-6 shadow-xl space-y-4">
+                            <div class="flex flex-wrap justify-between items-center gap-2">
+                                <div>
+                                    <h2 class="text-lg font-semibold text-cyan-400 flex items-center gap-2">
+                                        <i class="fa-solid fa-project-diagram"></i> 2D Single Line Diagram (SLD) — EHV 400/220 kV Switchyard
+                                    </h2>
+                                    <p class="text-xs text-slate-400">IEC 61850 MMS / GOOSE Live Topological View with IED Bay Telemetry</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span id="sld-status-tag" class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full font-semibold">
+                                        All Feeders Energized
+                                    </span>
+                                </div>
                             </div>
-                            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 flex items-center justify-center">
-                                <svg viewBox="0 0 750 280" class="w-full h-auto max-h-[340px]">
-                                    <!-- 400 kV Main Busbar -->
-                                    <line x1="50" y1="45" x2="700" y2="45" stroke="#22d3ee" stroke-width="6" class="glow-line"/>
-                                    <text x="55" y="28" fill="#22d3ee" font-size="13" font-weight="bold">400 kV EHV MAIN BUSBAR (BUS-A)</text>
 
-                                    <!-- Bay 1: Transformer TX-1 -->
-                                    <line x1="220" y1="45" x2="220" y2="85" stroke="#22d3ee" stroke-width="3"/>
-                                    <rect id="sld-breaker-1" x="206" y="85" width="28" height="28" fill="#10b981" rx="4"/>
-                                    <text x="244" y="103" fill="#e2e8f0" font-size="11" font-weight="bold" id="sld-cb1-txt">CB-1 (CLOSED)</text>
+                            <!-- Interactive Industrial SLD SVG -->
+                            <div class="bg-slate-950 border border-cyan-500/30 rounded-xl p-4 overflow-x-auto shadow-inner">
+                                <svg viewBox="0 0 960 540" class="w-full h-auto min-w-[780px]">
+                                    <defs>
+                                        <pattern id="sld-grid" width="30" height="30" patternUnits="userSpaceOnUse">
+                                            <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#0f172a" stroke-width="1"/>
+                                        </pattern>
+                                    </defs>
+                                    <rect width="960" height="540" fill="url(#sld-grid)"/>
 
-                                    <line x1="220" y1="113" x2="220" y2="135" stroke="#22d3ee" stroke-width="3"/>
-                                    <circle id="sld-tx1-top" cx="220" cy="150" r="16" stroke="#22d3ee" stroke-width="3" fill="none"/>
-                                    <circle id="sld-tx1-bot" cx="220" cy="170" r="16" stroke="#10b981" stroke-width="3" fill="none"/>
-                                    <text x="115" y="165" fill="#e2e8f0" font-size="12" font-weight="bold">TX-1 (315 MVA)</text>
-                                    <line x1="220" y1="186" x2="220" y2="230" stroke="#10b981" stroke-width="3"/>
+                                    <!-- ======================================================= -->
+                                    <!-- 1. INCOMING 400 kV PGCIL GRID FEEDERS (TOP)             -->
+                                    <!-- ======================================================= -->
+                                    <!-- Incoming Line 1 (Left) -->
+                                    <text x="145" y="20" fill="#38bdf8" font-size="10" font-weight="bold">400kV INCOMING LINE-1 (PGCIL)</text>
+                                    <polygon points="220,28 214,16 226,16" fill="#38bdf8"/>
+                                    <line x1="220" y1="25" x2="220" y2="95" stroke="#22d3ee" stroke-width="3"/>
+                                    <!-- LA & CVT Symbols -->
+                                    <line x1="220" y1="45" x2="195" y2="45" stroke="#22d3ee" stroke-width="1.5"/>
+                                    <rect x="180" y="39" width="15" height="12" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+                                    <text x="155" y="48" fill="#64748b" font-size="8" font-weight="bold">LA-1</text>
+                                    <!-- Line Breaker L1 -->
+                                    <rect x="211" y="55" width="18" height="18" fill="#10b981" rx="3" stroke="#059669" stroke-width="1.5"/>
+                                    <text x="235" y="68" fill="#94a3b8" font-size="9" font-weight="bold">CB-L1</text>
 
-                                    <!-- Bay 2: Transformer TX-2 / Breaker B2 -->
-                                    <line x1="520" y1="45" x2="520" y2="85" stroke="#22d3ee" stroke-width="3"/>
-                                    <rect id="sld-breaker-2" x="506" y="85" width="28" height="28" fill="#f59e0b" rx="4"/>
-                                    <text x="544" y="103" fill="#fcd34d" font-size="11" font-weight="bold">CB-B2 (VIB WARN)</text>
+                                    <!-- Incoming Line 2 (Right) -->
+                                    <text x="645" y="20" fill="#38bdf8" font-size="10" font-weight="bold">400kV INCOMING LINE-2 (NTPC)</text>
+                                    <polygon points="720,28 714,16 726,16" fill="#38bdf8"/>
+                                    <line x1="720" y1="25" x2="720" y2="95" stroke="#22d3ee" stroke-width="3"/>
+                                    <line x1="720" y1="45" x2="695" y2="45" stroke="#22d3ee" stroke-width="1.5"/>
+                                    <rect x="680" y="39" width="15" height="12" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+                                    <text x="655" y="48" fill="#64748b" font-size="8" font-weight="bold">LA-2</text>
+                                    <!-- Line Breaker L2 -->
+                                    <rect x="711" y="55" width="18" height="18" fill="#10b981" rx="3" stroke="#059669" stroke-width="1.5"/>
+                                    <text x="735" y="68" fill="#94a3b8" font-size="9" font-weight="bold">CB-L2</text>
 
-                                    <line x1="520" y1="113" x2="520" y2="135" stroke="#22d3ee" stroke-width="3"/>
-                                    <circle cx="520" cy="150" r="16" stroke="#22d3ee" stroke-width="3" fill="none"/>
-                                    <circle cx="520" cy="170" r="16" stroke="#10b981" stroke-width="3" fill="none"/>
-                                    <text x="415" y="165" fill="#e2e8f0" font-size="12" font-weight="bold">TX-2 (315 MVA)</text>
-                                    <line x1="520" y1="186" x2="520" y2="230" stroke="#10b981" stroke-width="3"/>
+                                    <!-- ======================================================= -->
+                                    <!-- 2. 400 kV DOUBLE BUSBAR SYSTEM (BUS-A & BUS-B)          -->
+                                    <!-- ======================================================= -->
+                                    <!-- 400 kV Main Bus-A -->
+                                    <line x1="50" y1="95" x2="910" y2="95" stroke="#22d3ee" stroke-width="6" class="glow-line"/>
+                                    <text x="55" y="84" fill="#22d3ee" font-size="12" font-weight="bold">400 kV MAIN BUSBAR - I (BUS-A)</text>
+                                    <rect x="795" y="70" width="115" height="18" rx="4" fill="#083344" stroke="#22d3ee" stroke-width="1"/>
+                                    <text id="sld-bus-kv" x="805" y="82" fill="#67e8f9" font-size="10" font-weight="bold" font-family="monospace">V: 402.5 kV | 50Hz</text>
 
-                                    <!-- 220 kV Distribution Busbar -->
-                                    <line x1="80" y1="230" x2="670" y2="230" stroke="#10b981" stroke-width="6"/>
-                                    <text x="85" y="255" fill="#10b981" font-size="13" font-weight="bold">220 kV OUTGOING DISTRIBUTION BUSBAR</text>
+                                    <!-- 400 kV Reserve Bus-B -->
+                                    <line x1="50" y1="125" x2="910" y2="125" stroke="#0284c7" stroke-width="4" stroke-dasharray="10 4"/>
+                                    <text x="55" y="142" fill="#38bdf8" font-size="11" font-weight="bold">400 kV RESERVE / TRANSFER BUSBAR - II (BUS-B)</text>
+
+                                    <!-- Bus Coupler Bay (Center) -->
+                                    <line x1="470" y1="95" x2="470" y2="125" stroke="#22d3ee" stroke-width="2.5"/>
+                                    <rect x="461" y="101" width="18" height="18" fill="#10b981" rx="3"/>
+                                    <text x="484" y="114" fill="#cbd5e1" font-size="9" font-weight="bold">BC-1 (CLOSED)</text>
+
+                                    <!-- ======================================================= -->
+                                    <!-- 3. BAY 1: ICT TRANSFORMER TX-1 (315 MVA) - LEFT         -->
+                                    <!-- ======================================================= -->
+                                    <!-- Bus Isolator 89A -->
+                                    <line x1="250" y1="95" x2="250" y2="155" stroke="#22d3ee" stroke-width="3"/>
+                                    <circle cx="250" cy="158" r="3" fill="#22d3ee"/>
+                                    <line x1="250" y1="158" x2="242" y2="172" stroke="#10b981" stroke-width="2.5"/>
+                                    <circle cx="250" cy="175" r="3" fill="#22d3ee"/>
+                                    <text x="260" y="170" fill="#94a3b8" font-size="9">89A (CLOSED)</text>
+
+                                    <!-- Primary Circuit Breaker CB-1 -->
+                                    <line x1="250" y1="175" x2="250" y2="195" stroke="#22d3ee" stroke-width="3"/>
+                                    <rect id="sld-breaker-1" x="235" y="195" width="30" height="30" fill="#10b981" rx="5" stroke="#ffffff" stroke-width="1.5"/>
+                                    <text x="275" y="210" fill="#e2e8f0" font-size="11" font-weight="bold" id="sld-cb1-txt">CB-1 (CLOSED)</text>
+                                    <text x="275" y="222" fill="#64748b" font-size="9">SF6 50kA Breaker</text>
+
+                                    <!-- Current Transformer CT-1 -->
+                                    <line x1="250" y1="225" x2="250" y2="265" stroke="#22d3ee" stroke-width="3"/>
+                                    <ellipse cx="250" cy="245" rx="10" ry="5" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                                    <text x="210" y="248" fill="#64748b" font-size="9">CT-1</text>
+
+                                    <!-- Auto-Transformer TX-1 (315 MVA) with OLTC -->
+                                    <circle id="sld-tx1-top" cx="250" cy="285" r="22" stroke="#22d3ee" stroke-width="3.5" fill="#0f172a"/>
+                                    <circle id="sld-tx1-bot" cx="250" cy="315" r="22" stroke="#10b981" stroke-width="3.5" fill="#0f172a" fill-opacity="0.6"/>
+                                    <!-- OLTC Diagonal Arrow -->
+                                    <line x1="222" y1="330" x2="278" y2="270" stroke="#f59e0b" stroke-width="2"/>
+                                    <polygon points="278,270 270,272 276,278" fill="#f59e0b"/>
+                                    <!-- Neutral Grounding -->
+                                    <line x1="228" y1="285" x2="205" y2="285" stroke="#64748b" stroke-width="1.5"/>
+                                    <line x1="205" y1="285" x2="205" y2="300" stroke="#64748b" stroke-width="1.5"/>
+                                    <line x1="197" y1="300" x2="213" y2="300" stroke="#64748b" stroke-width="1.5"/>
+                                    <line x1="200" y1="304" x2="210" y2="304" stroke="#64748b" stroke-width="1.5"/>
+
+                                    <!-- IED Live Telemetry Callout Panel for TX-1 -->
+                                    <g transform="translate(55, 255)">
+                                        <rect width="135" height="82" rx="6" fill="#0f172a" stroke="#22d3ee" stroke-width="1.5"/>
+                                        <rect width="135" height="18" rx="6" fill="#083344"/>
+                                        <text x="8" y="13" fill="#22d3ee" font-size="9" font-weight="bold">IED RET670 • TX-1 (315MVA)</text>
+                                        <text x="10" y="34" fill="#cbd5e1" font-size="10" font-family="monospace">Power : <tspan id="sld-tx1-mw" fill="#a855f7" font-weight="bold">125.3 MW</tspan></text>
+                                        <text x="10" y="50" fill="#cbd5e1" font-size="10" font-family="monospace">Curr  : <tspan id="sld-tx1-amp" fill="#10b981" font-weight="bold">210.8 A</tspan></text>
+                                        <text x="10" y="66" fill="#cbd5e1" font-size="10" font-family="monospace">W.Temp: <tspan id="sld-tx1-temp" fill="#f59e0b" font-weight="bold">80.4 °C</tspan></text>
+                                    </g>
+
+                                    <!-- Secondary Breaker CB-1B (220kV Side) -->
+                                    <line x1="250" y1="337" x2="250" y2="410" stroke="#10b981" stroke-width="3"/>
+                                    <rect x="239" y="362" width="22" height="22" fill="#10b981" rx="4"/>
+                                    <text x="268" y="377" fill="#94a3b8" font-size="9" font-weight="bold">CB-1B (220kV)</text>
+
+                                    <!-- ======================================================= -->
+                                    <!-- 4. BAY 2: ICT TRANSFORMER TX-2 (315 MVA) - RIGHT        -->
+                                    <!-- ======================================================= -->
+                                    <!-- Bus Isolator 89B -->
+                                    <line x1="690" y1="95" x2="690" y2="155" stroke="#22d3ee" stroke-width="3"/>
+                                    <circle cx="690" cy="158" r="3" fill="#22d3ee"/>
+                                    <line x1="690" y1="158" x2="682" y2="172" stroke="#10b981" stroke-width="2.5"/>
+                                    <circle cx="690" cy="175" r="3" fill="#22d3ee"/>
+                                    <text x="700" y="170" fill="#94a3b8" font-size="9">89B (CLOSED)</text>
+
+                                    <!-- Primary Circuit Breaker CB-B2 -->
+                                    <line x1="690" y1="175" x2="690" y2="195" stroke="#22d3ee" stroke-width="3"/>
+                                    <rect id="sld-breaker-2" x="675" y="195" width="30" height="30" fill="#f59e0b" rx="5" stroke="#ffffff" stroke-width="1.5"/>
+                                    <text x="715" y="210" fill="#fcd34d" font-size="11" font-weight="bold">CB-B2 (VIB WARN)</text>
+                                    <text x="715" y="222" fill="#f59e0b" font-size="9">Mech. Vibration: 12mm/s</text>
+
+                                    <!-- Current Transformer CT-2 -->
+                                    <line x1="690" y1="225" x2="690" y2="265" stroke="#22d3ee" stroke-width="3"/>
+                                    <ellipse cx="690" cy="245" rx="10" ry="5" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                                    <text x="650" y="248" fill="#64748b" font-size="9">CT-2</text>
+
+                                    <!-- Auto-Transformer TX-2 (315 MVA) -->
+                                    <circle cx="690" cy="285" r="22" stroke="#22d3ee" stroke-width="3.5" fill="#0f172a"/>
+                                    <circle cx="690" cy="315" r="22" stroke="#10b981" stroke-width="3.5" fill="#0f172a" fill-opacity="0.6"/>
+                                    <line x1="662" y1="330" x2="718" y2="270" stroke="#22d3ee" stroke-width="2"/>
+                                    <polygon points="718,270 710,272 716,278" fill="#22d3ee"/>
+
+                                    <!-- IED Live Telemetry Callout Panel for TX-2 -->
+                                    <g transform="translate(500, 255)">
+                                        <rect width="135" height="82" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+                                        <rect width="135" height="18" rx="6" fill="#1e293b"/>
+                                        <text x="8" y="13" fill="#38bdf8" font-size="9" font-weight="bold">IED RET670 • TX-2 (315MVA)</text>
+                                        <text x="10" y="34" fill="#cbd5e1" font-size="10" font-family="monospace">Power : <tspan fill="#a855f7" font-weight="bold">118.0 MW</tspan></text>
+                                        <text x="10" y="50" fill="#cbd5e1" font-size="10" font-family="monospace">Curr  : <tspan fill="#10b981" font-weight="bold">196.4 A</tspan></text>
+                                        <text x="10" y="66" fill="#cbd5e1" font-size="10" font-family="monospace">W.Temp: <tspan fill="#10b981" font-weight="bold">64.0 °C</tspan></text>
+                                    </g>
+
+                                    <!-- Secondary Breaker CB-2B (220kV Side) -->
+                                    <line x1="690" y1="337" x2="690" y2="410" stroke="#10b981" stroke-width="3"/>
+                                    <rect x="679" y="362" width="22" height="22" fill="#10b981" rx="4"/>
+                                    <text x="708" y="377" fill="#94a3b8" font-size="9" font-weight="bold">CB-2B (220kV)</text>
+
+                                    <!-- ======================================================= -->
+                                    <!-- 5. 220 kV OUTGOING DISTRIBUTION BUSBAR & FEEDERS        -->
+                                    <!-- ======================================================= -->
+                                    <line x1="60" y1="410" x2="900" y2="410" stroke="#10b981" stroke-width="6"/>
+                                    <text x="65" y="400" fill="#10b981" font-size="12" font-weight="bold">220 kV OUTGOING DISTRIBUTION BUSBAR</text>
+
+                                    <!-- Outgoing Feeder 1 (Industrial Zone) -->
+                                    <line x1="180" y1="410" x2="180" y2="500" stroke="#10b981" stroke-width="2.5"/>
+                                    <rect x="171" y="435" width="18" height="18" fill="#10b981" rx="3"/>
+                                    <polygon points="180,508 174,496 186,496" fill="#10b981"/>
+                                    <text x="115" y="525" fill="#94a3b8" font-size="10" font-weight="bold">220kV FEEDER-1 (INDUSTRIAL)</text>
+
+                                    <!-- Outgoing Feeder 2 (Railway Traction) -->
+                                    <line x1="440" y1="410" x2="440" y2="500" stroke="#10b981" stroke-width="2.5"/>
+                                    <rect x="431" y="435" width="18" height="18" fill="#10b981" rx="3"/>
+                                    <polygon points="440,508 434,496 446,496" fill="#10b981"/>
+                                    <text x="375" y="525" fill="#94a3b8" font-size="10" font-weight="bold">220kV FEEDER-2 (TRACTION)</text>
+
+                                    <!-- Outgoing Feeder 3 (City Grid) -->
+                                    <line x1="650" y1="410" x2="650" y2="500" stroke="#10b981" stroke-width="2.5"/>
+                                    <rect x="641" y="435" width="18" height="18" fill="#10b981" rx="3"/>
+                                    <polygon points="650,508 644,496 656,496" fill="#10b981"/>
+                                    <text x="595" y="525" fill="#94a3b8" font-size="10" font-weight="bold">220kV FEEDER-3 (CITY GRID)</text>
+
+                                    <!-- 220 kV Shunt Capacitor Bank (Harmonic Filter) -->
+                                    <line x1="830" y1="410" x2="830" y2="465" stroke="#38bdf8" stroke-width="2.5"/>
+                                    <rect x="821" y="428" width="18" height="18" fill="#0284c7" rx="3"/>
+                                    <line x1="815" y1="465" x2="845" y2="465" stroke="#38bdf8" stroke-width="3"/>
+                                    <line x1="815" y1="473" x2="845" y2="473" stroke="#38bdf8" stroke-width="3"/>
+                                    <line x1="830" y1="473" x2="830" y2="490" stroke="#64748b" stroke-width="2"/>
+                                    <line x1="820" y1="490" x2="840" y2="490" stroke="#64748b" stroke-width="2"/>
+                                    <text x="775" y="512" fill="#38bdf8" font-size="10" font-weight="bold">50 MVAR CAP. BANK</text>
                                 </svg>
+                            </div>
+
+                            <!-- SLD Legend & Quick Actions -->
+                            <div class="flex flex-wrap justify-between items-center text-xs text-slate-400 pt-2 border-t border-slate-800 gap-3">
+                                <div class="flex flex-wrap items-center gap-4">
+                                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span> Breaker Closed (Normal)</span>
+                                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500 inline-block"></span> Breaker Alarm / Vib Warning</span>
+                                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-rose-500 inline-block"></span> Breaker Tripped (Fault)</span>
+                                    <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-cyan-400 inline-block"></span> 400 kV Bus</span>
+                                    <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-emerald-400 inline-block"></span> 220 kV Bus</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="injectCriticalFault()" class="px-3 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-semibold transition">
+                                        Simulate TX-1 Trip
+                                    </button>
+                                    <button onclick="resetSimulation()" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition">
+                                        Restore Normal
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
