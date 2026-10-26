@@ -18,9 +18,20 @@ let latestTelemetryState = {
     }
 };
 
+// Live IST Clock in Top Header
+setInterval(() => {
+    const clockEl = document.getElementById('live-ist-clock');
+    if (clockEl) clockEl.innerText = `${new Date().toLocaleTimeString()} IST`;
+}, 1000);
+
 // =====================================================
-// 1. SECURE LOGIN AUTHENTICATION (FIXED LOGIC)
+// 1. SECURE LOGIN AUTHENTICATION
 // =====================================================
+function quickFillLogin() {
+    document.getElementById('login-user').value = "Exec_01";
+    document.getElementById('login-pass').value = "patanjali2026";
+}
+
 function handleLogin(event) {
     event.preventDefault();
     const user = document.getElementById('login-user').value.trim();
@@ -216,13 +227,15 @@ const rulChart = new Chart(ctxRul, {
 });
 
 // =====================================================
-// 4. ALERTS MANAGEMENT
+// 4. ALERTS & IEC 61850 GOOSE SNIFFER MANAGEMENT
 // =====================================================
 let alertsList = [
     { level: 'CRITICAL', color: 'rose', msg: 'High Temp TX-1 (85°C Threshold Near)', time: '14:32:10' },
     { level: 'WARNING', color: 'amber', msg: 'Breaker B2 Vibration Anomaly (12mm/s)', time: '13:45:02' },
     { level: 'INFO', color: 'cyan', msg: 'IEC 61850 GOOSE Packet Sync Verified', time: '13:10:00' }
 ];
+
+let goosePackets = [];
 
 function renderAlerts() {
     const container = document.getElementById('alert-log-list');
@@ -257,6 +270,17 @@ function clearAlerts() {
     alertsList = [];
     renderAlerts();
 }
+
+function pushGoosePacket(scada) {
+    const streamEl = document.getElementById('goose-packet-stream');
+    if (!streamEl) return;
+    const sqNum = Math.floor(1000 + Math.random() * 9000);
+    const line = `[${new Date().toLocaleTimeString()}] GOOSE_PDU sqNum=${sqNum} stNum=1 | IED_RET670 -> BusA=${scada.voltage_kv}kV, I=${scada.current_a}A, P=${scada.power_mw}MW`;
+    goosePackets.unshift(line);
+    if (goosePackets.length > 8) goosePackets.pop();
+    streamEl.innerHTML = goosePackets.map(p => `<div class="text-emerald-400/90">${p}</div>`).join('');
+}
+
 renderAlerts();
 
 // =====================================================
@@ -303,11 +327,26 @@ function updateDashboardUI(data, isBackendConnected) {
         ? "SCADA + AI API: ONLINE"
         : "SCADA EDGE SIM: ACTIVE";
 
+    const latencyEl = document.getElementById('goose-latency');
+    if (latencyEl) latencyEl.innerText = `${Math.floor(9 + Math.random() * 6)} ms`;
+
     document.getElementById('val-voltage').innerText = scada.voltage_kv;
     document.getElementById('val-current').innerText = scada.current_a;
     document.getElementById('val-power').innerText = scada.power_mw;
     document.getElementById('val-pf').innerText = scada.power_factor;
     document.getElementById('val-freq').innerText = `${scada.frequency_hz} Hz`;
+
+    const mvarEl = document.getElementById('val-mvar');
+    if (mvarEl) mvarEl.innerText = (scada.power_mw * 0.48).toFixed(1);
+
+    // 3-Phase R-Y-B Symmetrical Values
+    const phaseV = (scada.voltage_kv / 1.732).toFixed(1);
+    const rEl = document.getElementById('ryb-r');
+    const yEl = document.getElementById('ryb-y');
+    const bEl = document.getElementById('ryb-b');
+    if (rEl) rEl.innerText = `${phaseV} kV | ${(scada.current_a - 0.3).toFixed(1)} A`;
+    if (yEl) yEl.innerText = `${(phaseV - 0.2).toFixed(1)} kV | ${(scada.current_a + 0.4).toFixed(1)} A`;
+    if (bEl) bEl.innerText = `${(+phaseV + 0.2).toFixed(1)} kV | ${scada.current_a} A`;
 
     document.getElementById('bar-voltage').style.width = `${Math.min(100, (scada.voltage_kv / 420) * 100)}%`;
     document.getElementById('bar-current').style.width = `${Math.min(100, (scada.current_a / 350) * 100)}%`;
@@ -321,6 +360,8 @@ function updateDashboardUI(data, isBackendConnected) {
     if (sldBusKv) sldBusKv.textContent = `V: ${scada.voltage_kv} kV | ${scada.frequency_hz}Hz`;
     if (sldTx1Mw) sldTx1Mw.textContent = `${scada.power_mw} MW`;
     if (sldTx1Amp) sldTx1Amp.textContent = `${scada.current_a} A`;
+
+    pushGoosePacket(scada);
 
     telemetryChart.data.labels.shift();
     telemetryChart.data.labels.push(data.timestamp);
@@ -344,12 +385,34 @@ function updateAIPanel(ai) {
     const sldTx1Temp = document.getElementById('sld-tx1-temp');
     if (sldTx1Temp) sldTx1Temp.textContent = `${ai.hotspot_temp_c} °C`;
 
+    // Update DGA Gas ppm dynamically based on failure risk
+    const riskFactor = ai.failure_prob_pct / 12.0;
+    const h2 = Math.round(35 * riskFactor);
+    const ch4 = Math.round(24 * riskFactor);
+    const c2h4 = Math.round(16 * riskFactor);
+    const c2h2 = +(0.6 * riskFactor).toFixed(1);
+
+    const elH2 = document.getElementById('dga-h2');
+    const elCh4 = document.getElementById('dga-ch4');
+    const elC2h4 = document.getElementById('dga-c2h4');
+    const elC2h2 = document.getElementById('dga-c2h2');
+    if (elH2) {
+        elH2.innerText = `${h2} ppm`;
+        document.getElementById('bar-dga-h2').style.width = `${Math.min(100, h2 / 3)}%`;
+        elCh4.innerText = `${ch4} ppm`;
+        document.getElementById('bar-dga-ch4').style.width = `${Math.min(100, ch4 / 2.5)}%`;
+        elC2h4.innerText = `${c2h4} ppm`;
+        document.getElementById('bar-dga-c2h4').style.width = `${Math.min(100, c2h4 / 2)}%`;
+        elC2h2.innerText = `${c2h2} ppm`;
+        document.getElementById('bar-dga-c2h2').style.width = `${Math.min(100, c2h2 * 12)}%`;
+    }
+
     document.getElementById('ai-fault-title').innerText = `Diagnostic State: ${ai.fault_classification}`;
     document.getElementById('ai-fault-action').innerText = `Recommended Action: ${ai.recommended_action}`;
 
     const badge = document.getElementById('ai-severity-badge');
     if (ai.severity === "CRITICAL") {
-        badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40";
+        badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40 animate-pulse";
         badge.innerText = "SEVERITY: CRITICAL";
     } else if (ai.severity === "WARNING") {
         badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40";
@@ -363,7 +426,7 @@ function updateAIPanel(ai) {
 setInterval(fetchLiveTelemetry, 2500);
 
 // =====================================================
-// 6. 3D TWIN SIMULATOR & WHAT-IF ENGINE
+// 6. 3D TWIN SIMULATOR, CLICKABLE SLD & WHAT-IF ENGINE
 // =====================================================
 async function runSimulation() {
     isManualSimulationActive = true;
@@ -446,6 +509,14 @@ async function runSimulation() {
     const sldTx1Bot = document.getElementById('sld-tx1-bot');
     const sldStatusTag = document.getElementById('sld-status-tag');
 
+    // Animated Flow Lines for TX-1
+    const flowLines = [
+        document.getElementById('sld-flow-tx1-in'),
+        document.getElementById('sld-flow-tx1-out'),
+        document.getElementById('iso-flow-1'),
+        document.getElementById('iso-flow-2')
+    ];
+
     if (aiResult.severity === "CRITICAL") {
         if (tx1Box) {
             tx1Box.setAttribute('stroke', '#f43f5e');
@@ -468,6 +539,7 @@ async function runSimulation() {
             sldStatusTag.innerText = 'CRITICAL: TX-1 OVERLOAD / CB-1 TRIPPED';
             sldStatusTag.className = 'text-xs bg-rose-500/20 text-rose-400 border border-rose-500/40 px-3 py-1 rounded-full font-bold animate-pulse';
         }
+        flowLines.forEach(l => l && l.classList.add('power-flow-stopped'));
     } else if (aiResult.severity === "WARNING") {
         if (tx1Box) {
             tx1Box.setAttribute('stroke', '#f59e0b');
@@ -490,6 +562,7 @@ async function runSimulation() {
             sldStatusTag.innerText = 'WARNING: HARMONIC / THERMAL STRESS';
             sldStatusTag.className = 'text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full font-semibold';
         }
+        flowLines.forEach(l => l && l.classList.remove('power-flow-stopped'));
     } else {
         if (tx1Box) {
             tx1Box.setAttribute('stroke', '#10b981');
@@ -512,6 +585,16 @@ async function runSimulation() {
             sldStatusTag.innerText = 'All Feeders Energized';
             sldStatusTag.className = 'text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full font-semibold';
         }
+        flowLines.forEach(l => l && l.classList.remove('power-flow-stopped'));
+    }
+}
+
+function toggleManualBreakerCB1() {
+    const currentTemp = parseFloat(document.getElementById('slider-temp').value);
+    if (currentTemp >= 90) {
+        resetSimulation();
+    } else {
+        injectCriticalFault();
     }
 }
 
@@ -531,6 +614,13 @@ function resetSimulation() {
     runSimulation();
     isManualSimulationActive = false;
     addAlert('INFO', 'cyan', 'Simulation Reset to Nominal Operating Parameters');
+}
+
+function generateCMMSTicket() {
+    const ai = latestTelemetryState.ai_predictions;
+    const ticketId = `WO-${Math.floor(10000 + Math.random() * 90000)}`;
+    addAlert('INFO', 'cyan', `CMMS Work Order ${ticketId} Dispatched: ${ai.recommended_action}`);
+    alert(`CMMS Work Order Generated!\n\nTicket ID: ${ticketId}\nAsset: 400/220kV ICT TX-1 (315 MVA)\nSeverity: ${ai.severity}\nAction: ${ai.recommended_action}`);
 }
 
 // =====================================================
