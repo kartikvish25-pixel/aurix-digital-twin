@@ -18,6 +18,10 @@ let latestTelemetryState = {
     }
 };
 
+let isChartPaused = false;
+let peakVoltage = 402.5;
+let peakPower = 125.3;
+
 // Live IST Clock in Top Header
 setInterval(() => {
     const clockEl = document.getElementById('live-ist-clock');
@@ -49,13 +53,19 @@ function handleLogin(event) {
             const dashboard = document.getElementById('main-dashboard');
             dashboard.classList.remove('opacity-0', 'pointer-events-none');
             dashboard.classList.add('opacity-100');
-            telemetryChart.resize();
-            lstmChart.resize();
-            rulChart.resize();
+            resizeAllCharts();
         }, 300);
     } else {
         errorBox.classList.remove('hidden');
     }
+}
+
+function resizeAllCharts() {
+    telemetryChart.resize();
+    harmonicFftChart.resize();
+    lstmChart.resize();
+    rulChart.resize();
+    healthRadarChart.resize();
 }
 
 // =====================================================
@@ -78,11 +88,7 @@ function switchTab(tabName) {
     activeBtn.classList.add('active-tab');
     activeBtn.classList.remove('text-slate-400');
 
-    setTimeout(() => {
-        telemetryChart.resize();
-        lstmChart.resize();
-        rulChart.resize();
-    }, 100);
+    setTimeout(resizeAllCharts, 100);
 }
 
 function toggleSidebar(tabPrefix) {
@@ -103,6 +109,7 @@ function toggleSidebar(tabPrefix) {
         content.classList.add('lg:col-span-12');
         toggleTxt.innerText = "Show Menu";
     }
+    setTimeout(resizeAllCharts, 100);
 }
 
 function switchSubView(tabPrefix, subViewName) {
@@ -129,19 +136,34 @@ function switchSubView(tabPrefix, subViewName) {
         activeSubBtn.classList.remove('text-slate-300', 'hover:bg-slate-700/50');
     }
 
-    setTimeout(() => {
-        telemetryChart.resize();
-        lstmChart.resize();
-        rulChart.resize();
-    }, 50);
+    setTimeout(resizeAllCharts, 50);
+}
+
+function toggleChartPause() {
+    isChartPaused = !isChartPaused;
+    const btn = document.getElementById('btn-pause-chart');
+    if (btn) {
+        btn.innerHTML = isChartPaused
+            ? `<i class="fa-solid fa-play text-emerald-400"></i> Resume Stream`
+            : `<i class="fa-solid fa-pause"></i> Pause Stream`;
+    }
 }
 
 // =====================================================
-// 3. CHART INITIALIZATIONS (Chart.js)
+// 3. UPGRADED CHART INITIALIZATIONS (Chart.js)
 // =====================================================
-const timeLabels = ['12s', '10s', '8s', '6s', '4s', '2s', 'Now'];
+const timeLabels = ['18s', '15s', '12s', '9s', '6s', '3s', 'Now'];
 
+// A. Dual-Axis Live SCADA Waveform Chart
 const ctxTelemetry = document.getElementById('telemetryChart').getContext('2d');
+const gradCyan = ctxTelemetry.createLinearGradient(0, 0, 0, 300);
+gradCyan.addColorStop(0, 'rgba(34, 211, 238, 0.35)');
+gradCyan.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
+
+const gradPurple = ctxTelemetry.createLinearGradient(0, 0, 0, 300);
+gradPurple.addColorStop(0, 'rgba(168, 85, 247, 0.30)');
+gradPurple.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
+
 const telemetryChart = new Chart(ctxTelemetry, {
     type: 'line',
     data: {
@@ -151,43 +173,87 @@ const telemetryChart = new Chart(ctxTelemetry, {
                 label: 'Bus Voltage (kV)',
                 data: [401.2, 402.0, 401.8, 402.5, 402.1, 401.9, 402.5],
                 borderColor: '#22d3ee',
-                backgroundColor: 'rgba(34, 211, 238, 0.12)',
+                backgroundColor: gradCyan,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: '#083344',
+                pointBorderColor: '#22d3ee',
                 tension: 0.4,
-                fill: true
+                fill: true,
+                yAxisID: 'yVoltage'
             },
             {
                 label: 'Active Power (MW)',
                 data: [122.0, 124.5, 123.1, 125.8, 124.9, 126.0, 125.3],
                 borderColor: '#a855f7',
-                backgroundColor: 'rgba(168, 85, 247, 0.08)',
+                backgroundColor: gradPurple,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: '#3b0764',
+                pointBorderColor: '#a855f7',
                 tension: 0.4,
-                fill: true
+                fill: true,
+                yAxisID: 'yPower'
             }
         ]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#cbd5e1' } } },
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { labels: { color: '#e2e8f0', usePointStyle: true, boxWidth: 8 } },
+            tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                borderColor: 'rgba(34, 211, 238, 0.4)',
+                borderWidth: 1
+            }
+        },
         scales: {
-            x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
-            y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30, 41, 59, 0.6)' } },
+            yVoltage: {
+                type: 'linear',
+                position: 'left',
+                suggestedMin: 396,
+                suggestedMax: 406,
+                title: { display: true, text: 'Bus Voltage (kV)', color: '#22d3ee', font: { size: 11 } },
+                ticks: { color: '#22d3ee' },
+                grid: { color: 'rgba(30, 41, 59, 0.6)' }
+            },
+            yPower: {
+                type: 'linear',
+                position: 'right',
+                suggestedMin: 110,
+                suggestedMax: 145,
+                title: { display: true, text: 'Active Power (MW)', color: '#a855f7', font: { size: 11 } },
+                ticks: { color: '#a855f7' },
+                grid: { drawOnChartArea: false }
+            }
         }
     }
 });
 
-const ctxLstm = document.getElementById('lstmFailureChart').getContext('2d');
-const lstmChart = new Chart(ctxLstm, {
-    type: 'line',
+// B. Harmonic Distortion FFT Spectrum Bar Chart
+const ctxFft = document.getElementById('harmonicFftChart').getContext('2d');
+const harmonicFftChart = new Chart(ctxFft, {
+    type: 'bar',
     data: {
-        labels: ['Day 1', 'Day 5', 'Day 10', 'Day 15', 'Day 20', 'Day 25', 'Day 30'],
+        labels: ['1st (50Hz Fund.)', '3rd (150Hz)', '5th (250Hz)', '7th (350Hz)', '9th (450Hz)', '11th (550Hz)', '13th (650Hz)'],
         datasets: [{
-            label: 'Failure Probability (%)',
-            data: [5, 7, 9, 12, 14, 15, 18],
-            borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.12)',
-            fill: true,
-            tension: 0.4
+            label: 'Harmonic Magnitude (% of Fundamental)',
+            data: [100, 1.8, 1.4, 0.9, 0.5, 0.3, 0.2],
+            backgroundColor: [
+                'rgba(34, 211, 238, 0.7)',
+                'rgba(168, 85, 247, 0.75)',
+                'rgba(245, 158, 11, 0.75)',
+                'rgba(245, 158, 11, 0.75)',
+                'rgba(16, 185, 129, 0.75)',
+                'rgba(16, 185, 129, 0.75)',
+                'rgba(16, 185, 129, 0.75)'
+            ],
+            borderColor: '#a855f7',
+            borderWidth: 1,
+            borderRadius: 6
         }]
     },
     options: {
@@ -195,36 +261,208 @@ const lstmChart = new Chart(ctxLstm, {
         maintainAspectRatio: false,
         plugins: { legend: { labels: { color: '#cbd5e1' } } },
         scales: {
-            x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
-            y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30, 41, 59, 0.5)' } },
+            y: {
+                type: 'logarithmic',
+                title: { display: true, text: 'Log Magnitude (%)', color: '#94a3b8' },
+                ticks: { color: '#94a3b8' },
+                grid: { color: 'rgba(30, 41, 59, 0.5)' }
+            }
         }
     }
 });
 
+// C. LSTM 30-Day Failure Probability Forecast (With Critical Threshold Line)
+const ctxLstm = document.getElementById('lstmFailureChart').getContext('2d');
+const lstmChart = new Chart(ctxLstm, {
+    type: 'line',
+    data: {
+        labels: ['Now', 'Day 5', 'Day 10', 'Day 15', 'Day 20', 'Day 25', 'Day 30'],
+        datasets: [
+            {
+                label: 'Predicted Failure Probability (%)',
+                data: [8, 10, 12, 14, 16, 18, 21],
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.16)',
+                borderWidth: 2.5,
+                pointRadius: 4,
+                fill: true,
+                tension: 0.4
+            },
+            {
+                label: 'Auto-Trip Danger Threshold (70%)',
+                data: [70, 70, 70, 70, 70, 70, 70],
+                borderColor: '#f43f5e',
+                borderWidth: 1.8,
+                borderDash: [6, 4],
+                pointRadius: 0,
+                fill: false
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { labels: { color: '#cbd5e1', usePointStyle: true } } },
+        scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
+            y: { min: 0, max: 100, ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+        }
+    }
+});
+
+// D. RUL Asset Health Degradation Curve (With Overhaul Threshold Line)
 const ctxRul = document.getElementById('rulChart').getContext('2d');
 const rulChart = new Chart(ctxRul, {
     type: 'line',
     data: {
         labels: ['Now', '+30d', '+60d', '+90d', '+120d', '+150d', '+180d'],
-        datasets: [{
-            label: 'Asset Health Index (%)',
-            data: [92, 86, 79, 71, 62, 50, 38],
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.12)',
-            fill: true,
-            tension: 0.3
-        }]
+        datasets: [
+            {
+                label: 'Asset Health Index (%)',
+                data: [92, 88, 83, 77, 70, 62, 54],
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.16)',
+                borderWidth: 2.5,
+                pointRadius: 4,
+                fill: true,
+                tension: 0.35
+            },
+            {
+                label: 'Mandatory Overhaul Limit (40%)',
+                data: [40, 40, 40, 40, 40, 40, 40],
+                borderColor: '#f43f5e',
+                borderWidth: 1.8,
+                borderDash: [6, 4],
+                pointRadius: 0,
+                fill: false
+            }
+        ]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#cbd5e1' } } },
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { labels: { color: '#cbd5e1', usePointStyle: true } } },
         scales: {
             x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
-            y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+            y: { min: 0, max: 100, ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
         }
     }
 });
+
+// E. 5-Axis Transformer Health Radar Chart
+const ctxRadar = document.getElementById('healthRadarChart').getContext('2d');
+const healthRadarChart = new Chart(ctxRadar, {
+    type: 'radar',
+    data: {
+        labels: [
+            'Thermal Integrity',
+            'Dielectric Insulation',
+            'SF6 Breaker Contacts',
+            'DGA Oil Purity',
+            'Harmonic Immunity'
+        ],
+        datasets: [
+            {
+                label: 'TX-1 Live Digital Twin State',
+                data: [91, 94, 88, 92, 90],
+                backgroundColor: 'rgba(34, 211, 238, 0.22)',
+                borderColor: '#22d3ee',
+                pointBackgroundColor: '#22d3ee',
+                borderWidth: 2.5
+            },
+            {
+                label: 'IEEE Nominal Baseline',
+                data: [95, 95, 95, 95, 95],
+                backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                borderColor: '#10b981',
+                borderDash: [4, 4],
+                pointRadius: 2,
+                borderWidth: 1.5
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#e2e8f0' } } },
+        scales: {
+            r: {
+                min: 0,
+                max: 100,
+                angleLines: { color: 'rgba(148, 163, 184, 0.2)' },
+                grid: { color: 'rgba(148, 163, 184, 0.2)' },
+                pointLabels: { color: '#cbd5e1', font: { size: 11, weight: 'bold' } },
+                ticks: { display: false }
+            }
+        }
+    }
+});
+
+// Function to dynamically update AI Graphs (LSTM, RUL, Radar, FFT) on Simulation / Live State
+function updateDynamicAIGraphs(ai, loadPct = 75, thdPct = 2.5) {
+    const baseFail = ai.failure_prob_pct;
+    const baseHealth = ai.health_index_pct;
+
+    // 1. Update LSTM 30-Day Forecast Curve
+    const lstmCurve = [
+        baseFail,
+        Math.min(99, +(baseFail * 1.08 + 1.2).toFixed(1)),
+        Math.min(99, +(baseFail * 1.16 + 2.5).toFixed(1)),
+        Math.min(99, +(baseFail * 1.25 + 4.0).toFixed(1)),
+        Math.min(99, +(baseFail * 1.35 + 5.8).toFixed(1)),
+        Math.min(99, +(baseFail * 1.45 + 7.5).toFixed(1)),
+        Math.min(99, +(baseFail * 1.55 + 9.5).toFixed(1))
+    ];
+    lstmChart.data.datasets[0].data = lstmCurve;
+    lstmChart.data.datasets[0].borderColor = ai.severity === 'CRITICAL' ? '#f43f5e' : (ai.severity === 'WARNING' ? '#f59e0b' : '#22d3ee');
+    lstmChart.data.datasets[0].backgroundColor = ai.severity === 'CRITICAL' ? 'rgba(244, 63, 94, 0.2)' : 'rgba(245, 158, 11, 0.16)';
+    lstmChart.update('none');
+
+    // 2. Update RUL 180-Day Degradation Curve
+    const dropRate = ai.severity === 'CRITICAL' ? 11.5 : (ai.severity === 'WARNING' ? 7.5 : 5.2);
+    const rulCurve = [
+        baseHealth,
+        Math.max(5, Math.round(baseHealth - dropRate * 1)),
+        Math.max(5, Math.round(baseHealth - dropRate * 2.1)),
+        Math.max(5, Math.round(baseHealth - dropRate * 3.3)),
+        Math.max(5, Math.round(baseHealth - dropRate * 4.6)),
+        Math.max(5, Math.round(baseHealth - dropRate * 6.0)),
+        Math.max(5, Math.round(baseHealth - dropRate * 7.5))
+    ];
+    rulChart.data.datasets[0].data = rulCurve;
+    rulChart.data.datasets[0].borderColor = ai.severity === 'CRITICAL' ? '#f43f5e' : '#10b981';
+    rulChart.update('none');
+
+    // 3. Update 5-Axis Radar Chart
+    const thermalScore = Math.max(15, Math.min(98, Math.round(115 - (ai.hotspot_temp_c - 60) * 1.3)));
+    const dielectricScore = Math.max(20, Math.round(baseHealth * 0.98));
+    const contactScore = Math.max(25, Math.round(100 - (loadPct - 60) * 0.55));
+    const dgaScore = Math.max(15, Math.round(100 - baseFail * 0.85));
+    const harmonicScore = Math.max(15, Math.round(100 - thdPct * 6.5));
+
+    healthRadarChart.data.datasets[0].data = [thermalScore, dielectricScore, contactScore, dgaScore, harmonicScore];
+    healthRadarChart.data.datasets[0].borderColor = ai.severity === 'CRITICAL' ? '#f43f5e' : '#22d3ee';
+    healthRadarChart.data.datasets[0].backgroundColor = ai.severity === 'CRITICAL' ? 'rgba(244, 63, 94, 0.25)' : 'rgba(34, 211, 238, 0.22)';
+    healthRadarChart.update('none');
+
+    // 4. Update FFT Harmonic Spectrum
+    harmonicFftChart.data.datasets[0].data = [
+        100,
+        +(thdPct * 0.72).toFixed(2),
+        +(thdPct * 0.56).toFixed(2),
+        +(thdPct * 0.36).toFixed(2),
+        +(thdPct * 0.20).toFixed(2),
+        +(thdPct * 0.12).toFixed(2),
+        +(thdPct * 0.08).toFixed(2)
+    ];
+    harmonicFftChart.update('none');
+
+    const thdEl = document.getElementById('chart-thd-val');
+    if (thdEl) thdEl.innerText = `${thdPct} %`;
+}
 
 // =====================================================
 // 4. ALERTS & IEC 61850 GOOSE SNIFFER MANAGEMENT
@@ -339,6 +577,14 @@ function updateDashboardUI(data, isBackendConnected) {
     const mvarEl = document.getElementById('val-mvar');
     if (mvarEl) mvarEl.innerText = (scada.power_mw * 0.48).toFixed(1);
 
+    // Track Peak Stats for Oscilloscope Header
+    if (scada.voltage_kv > peakVoltage) peakVoltage = scada.voltage_kv;
+    if (scada.power_mw > peakPower) peakPower = scada.power_mw;
+    const pkVEl = document.getElementById('chart-peak-v');
+    const pkMwEl = document.getElementById('chart-peak-mw');
+    if (pkVEl) pkVEl.innerText = `${peakVoltage} kV`;
+    if (pkMwEl) pkMwEl.innerText = `${peakPower} MW`;
+
     // 3-Phase R-Y-B Symmetrical Values
     const phaseV = (scada.voltage_kv / 1.732).toFixed(1);
     const rEl = document.getElementById('ryb-r');
@@ -363,13 +609,15 @@ function updateDashboardUI(data, isBackendConnected) {
 
     pushGoosePacket(scada);
 
-    telemetryChart.data.labels.shift();
-    telemetryChart.data.labels.push(data.timestamp);
-    telemetryChart.data.datasets[0].data.shift();
-    telemetryChart.data.datasets[0].data.push(scada.voltage_kv);
-    telemetryChart.data.datasets[1].data.shift();
-    telemetryChart.data.datasets[1].data.push(scada.power_mw);
-    telemetryChart.update('none');
+    if (!isChartPaused) {
+        telemetryChart.data.labels.shift();
+        telemetryChart.data.labels.push(data.timestamp);
+        telemetryChart.data.datasets[0].data.shift();
+        telemetryChart.data.datasets[0].data.push(scada.voltage_kv);
+        telemetryChart.data.datasets[1].data.shift();
+        telemetryChart.data.datasets[1].data.push(scada.power_mw);
+        telemetryChart.update('none');
+    }
 
     if (ai_predictions) {
         updateAIPanel(ai_predictions);
@@ -487,6 +735,7 @@ async function runSimulation() {
 
     latestTelemetryState.ai_predictions = aiResult;
     updateAIPanel(aiResult);
+    updateDynamicAIGraphs(aiResult, load, thd);
 
     const simHotspot = document.getElementById('sim-out-hotspot');
     const simRisk = document.getElementById('sim-out-risk');

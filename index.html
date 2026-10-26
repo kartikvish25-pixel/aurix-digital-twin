@@ -150,7 +150,7 @@
                                 <i class="fa-solid fa-project-diagram text-cyan-400 w-4"></i> 2D Single Line Diagram (SLD)
                             </button>
                             <button onclick="switchSubView('telemetry', 'chart')" id="sub-btn-chart" class="w-full text-left p-2.5 rounded-lg sub-nav-btn text-slate-300 hover:bg-slate-700/50 flex items-center gap-2.5">
-                                <i class="fa-solid fa-chart-line text-cyan-400 w-4"></i> Live Telemetry Stream
+                                <i class="fa-solid fa-chart-line text-cyan-400 w-4"></i> Live Telemetry & FFT Graphs
                             </button>
                             <button onclick="switchSubView('telemetry', 'logs')" id="sub-btn-logs" class="w-full text-left p-2.5 rounded-lg sub-nav-btn text-slate-300 hover:bg-slate-700/50 flex items-center gap-2.5 justify-between">
                                 <span class="flex items-center gap-2.5"><i class="fa-solid fa-bell text-rose-400 w-4"></i> Alert Log & GOOSE Sniffer</span>
@@ -452,16 +452,61 @@
                             </div>
                         </div>
 
-                        <!-- Sub-View 3: Live Chart -->
-                        <div id="sub-view-chart" class="sub-section hidden bg-slate-800/60 border border-slate-700/70 rounded-xl p-6 shadow-xl">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold text-cyan-400 flex items-center gap-2">
-                                    <i class="fa-solid fa-chart-line"></i> Live Telemetry Stream (Bus Voltage & Active Power)
-                                </h3>
-                                <span class="text-xs text-slate-400 font-mono">Real-Time Rolling Window (2.5s Interval)</span>
+                        <!-- Sub-View 3: Upgraded Live Dual-Axis Telemetry + Harmonic FFT Spectrum -->
+                        <div id="sub-view-chart" class="sub-section hidden space-y-6">
+                            <!-- Graph 1: Dual Axis Oscilloscope -->
+                            <div class="bg-slate-800/60 border border-slate-700/70 rounded-xl p-6 shadow-xl space-y-4">
+                                <div class="flex flex-wrap justify-between items-center gap-3">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-cyan-400 flex items-center gap-2">
+                                            <i class="fa-solid fa-chart-line"></i> Dual-Axis Live SCADA Waveform (Bus Voltage & Active Power)
+                                        </h3>
+                                        <p class="text-xs text-slate-400">Left Axis: 400kV EHV Bus Voltage (Cyan) • Right Axis: TX-1 Active Power Flow in MW (Purple)</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button onclick="toggleChartPause()" id="btn-pause-chart" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-700 border border-slate-700 text-xs text-cyan-300 font-semibold transition flex items-center gap-1.5">
+                                            <i class="fa-solid fa-pause"></i> Pause Stream
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Live Peak / Min / Avg Strip -->
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs font-mono">
+                                    <div class="bg-slate-900/90 border border-slate-800 px-3 py-2 rounded-lg flex justify-between">
+                                        <span class="text-slate-400">Peak V:</span><span id="chart-peak-v" class="text-cyan-400 font-bold">403.1 kV</span>
+                                    </div>
+                                    <div class="bg-slate-900/90 border border-slate-800 px-3 py-2 rounded-lg flex justify-between">
+                                        <span class="text-slate-400">Peak Load:</span><span id="chart-peak-mw" class="text-purple-400 font-bold">126.4 MW</span>
+                                    </div>
+                                    <div class="bg-slate-900/90 border border-slate-800 px-3 py-2 rounded-lg flex justify-between">
+                                        <span class="text-slate-400">Grid Freq:</span><span class="text-emerald-400 font-bold">50.00 Hz</span>
+                                    </div>
+                                    <div class="bg-slate-900/90 border border-slate-800 px-3 py-2 rounded-lg flex justify-between">
+                                        <span class="text-slate-400">THD Level:</span><span id="chart-thd-val" class="text-amber-400 font-bold">2.5 %</span>
+                                    </div>
+                                </div>
+
+                                <div class="h-80 bg-slate-950/90 border border-slate-800 rounded-xl p-4 relative">
+                                    <canvas id="telemetryChart"></canvas>
+                                </div>
                             </div>
-                            <div class="h-96 bg-slate-900/60 border border-slate-800 rounded-xl p-4 relative">
-                                <canvas id="telemetryChart"></canvas>
+
+                            <!-- Graph 2: Harmonic Distortion FFT Spectrum (1st to 13th Order) -->
+                            <div class="bg-slate-800/60 border border-slate-700/70 rounded-xl p-6 shadow-xl space-y-3">
+                                <div class="flex flex-wrap justify-between items-center gap-2">
+                                    <div>
+                                        <h3 class="text-base font-semibold text-purple-400 flex items-center gap-2">
+                                            <i class="fa-solid fa-wave-square"></i> Fast Fourier Transform (FFT) Harmonic Spectrum Analyzer (IEEE 519)
+                                        </h3>
+                                        <p class="text-xs text-slate-400">Real-Time Odd Harmonic Order Magnitude (% of Fundamental 50 Hz Waveform)</p>
+                                    </div>
+                                    <span class="text-xs bg-purple-500/15 border border-purple-500/30 text-purple-300 px-2.5 py-1 rounded-full font-mono">
+                                        3rd, 5th, 7th, 9th, 11th, 13th Harmonics
+                                    </span>
+                                </div>
+                                <div class="h-60 bg-slate-950/90 border border-slate-800 rounded-xl p-4 relative">
+                                    <canvas id="harmonicFftChart"></canvas>
+                                </div>
                             </div>
                         </div>
 
@@ -517,7 +562,7 @@
                                 <i class="fa-solid fa-heart-pulse text-emerald-400"></i> Health, DGA & CMMS Ticket
                             </button>
                             <button onclick="switchSubView('ai-health', 'graphs')" id="sub-btn-graphs" class="w-full text-left p-2.5 rounded-lg sub-nav-btn text-slate-300 hover:bg-slate-700/50 flex items-center gap-2">
-                                <i class="fa-solid fa-chart-area text-amber-400"></i> Failure Prob. & RUL Curves
+                                <i class="fa-solid fa-chart-area text-amber-400"></i> LSTM, RUL & Radar Graphs
                             </button>
                         </nav>
 
@@ -610,14 +655,61 @@
                             </div>
                         </div>
 
+                        <!-- Upgraded AI Graphs Sub-View: LSTM + RUL + Multi-Axis Health Radar -->
                         <div id="sub-view-graphs" class="sub-section hidden space-y-6">
-                            <div class="bg-slate-800/60 border border-slate-700 p-6 rounded-xl">
-                                <h3 class="text-base font-semibold text-amber-400 mb-4">Failure Probability Over Time (LSTM Forecast Model)</h3>
-                                <div class="h-72 relative"><canvas id="lstmFailureChart"></canvas></div>
+                            <div class="flex flex-wrap justify-between items-center bg-slate-900/90 border border-slate-800 px-4 py-3 rounded-xl gap-2">
+                                <span class="text-xs text-slate-300">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-cyan-400 mr-1"></i>
+                                    <strong>Dynamic AI Curves:</strong> Graphs react live to What-If Sliders &amp; Fault Injection!
+                                </span>
+                                <div class="flex gap-2">
+                                    <button onclick="injectCriticalFault()" class="px-3 py-1 rounded bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-semibold hover:bg-rose-500/30">Simulate Fault Curve</button>
+                                    <button onclick="resetSimulation()" class="px-3 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 text-xs hover:bg-slate-700">Nominal Curve</button>
+                                </div>
                             </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <!-- LSTM Failure Probability Curve -->
+                                <div class="bg-slate-800/60 border border-slate-700 p-5 rounded-xl">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <h3 class="text-sm font-semibold text-amber-400 flex items-center gap-2">
+                                            <i class="fa-solid fa-chart-line"></i> 30-Day Failure Probability (LSTM Forecast)
+                                        </h3>
+                                        <span class="text-[10px] text-rose-400 font-mono">Red Line: Trip Threshold (70%)</span>
+                                    </div>
+                                    <div class="h-64 bg-slate-950/80 border border-slate-800 rounded-xl p-3 relative">
+                                        <canvas id="lstmFailureChart"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- RUL Degradation Curve -->
+                                <div class="bg-slate-800/60 border border-slate-700 p-5 rounded-xl">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <h3 class="text-sm font-semibold text-emerald-400 flex items-center gap-2">
+                                            <i class="fa-solid fa-battery-three-quarters"></i> RUL Asset Health Degradation (180-Day Horizon)
+                                        </h3>
+                                        <span class="text-[10px] text-rose-400 font-mono">Red Line: Overhaul Limit (40%)</span>
+                                    </div>
+                                    <div class="h-64 bg-slate-950/80 border border-slate-800 rounded-xl p-3 relative">
+                                        <canvas id="rulChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5-Axis Transformer Health Radar Chart -->
                             <div class="bg-slate-800/60 border border-slate-700 p-6 rounded-xl">
-                                <h3 class="text-base font-semibold text-emerald-400 mb-4">Remaining Useful Life (RUL) Degradation Curve</h3>
-                                <div class="h-72 relative"><canvas id="rulChart"></canvas></div>
+                                <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+                                    <div>
+                                        <h3 class="text-base font-semibold text-cyan-400 flex items-center gap-2">
+                                            <i class="fa-solid fa-compass-drafting"></i> Multi-Dimensional Subsystem Health Radar (TX-1 Digital Twin vs Nominal Baseline)
+                                        </h3>
+                                        <p class="text-xs text-slate-400">Evaluates Thermal Integrity, Dielectric Insulation, SF6 Contact Health, DGA Oil Purity &amp; Harmonic Immunity</p>
+                                    </div>
+                                    <span class="text-xs bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 px-3 py-1 rounded-full font-mono">IEEE C57.104 Multi-Factor Index</span>
+                                </div>
+                                <div class="h-80 bg-slate-950/80 border border-slate-800 rounded-xl p-4 relative flex items-center justify-center">
+                                    <canvas id="healthRadarChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
