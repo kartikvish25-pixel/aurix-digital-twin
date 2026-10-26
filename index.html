@@ -54,42 +54,42 @@
     <!-- ================================================================= -->
     <div id="main-dashboard" class="opacity-0 transition-opacity duration-500 pointer-events-none">
         
-        <!-- Top Navigation Bar -->
-        <header class="bg-slate-950/95 backdrop-blur border-b border-cyan-500/30 px-6 py-3 flex flex-wrap justify-between items-center sticky top-0 z-40 shadow-lg gap-3">
+        <!-- Top Navigation Bar (Clean & Compact) -->
+        <header class="bg-slate-950/95 backdrop-blur border-b border-cyan-500/30 px-4 py-3 flex justify-between items-center sticky top-0 z-40 shadow-lg">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-400 font-bold text-xl shadow-[0_0_15px_rgba(34,211,238,0.4)]">
                     <i class="fa-solid fa-bolt"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold tracking-wide text-white flex items-center gap-2">
+                    <h1 class="text-base font-bold tracking-wide text-white flex items-center gap-2">
                         EHV 400/220 kV Digital Twin 
-                        <span class="text-[11px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2.5 py-0.5 rounded-full">IEC 61850 / 62443[cite: 3, 6]</span>
+                        <span class="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full hidden sm:inline-block">IEC 61850 / 62443[cite: 3, 6]</span>
                     </h1>
-                    <p class="text-xs text-slate-400">AURIX Hackathon 2026 • Team Patanjali • IILM University[cite: 1, 2]</p>
+                    <p class="text-[11px] text-slate-400">AURIX Hackathon 2026 • Team Patanjali[cite: 1, 2]</p>
                 </div>
             </div>
 
             <!-- Navigation Tabs -->
-            <nav class="flex space-x-2 bg-slate-900 p-1 rounded-lg border border-slate-800">
-                <button onclick="switchTab('telemetry')" id="tab-telemetry" class="tab-btn active-tab px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-gauge-high"></i> 1. Real-Time Telemetry[cite: 6]
+            <nav class="flex space-x-1.5 bg-slate-900 p-1 rounded-lg border border-slate-800">
+                <button onclick="switchTab('telemetry')" id="tab-telemetry" class="tab-btn active-tab px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-gauge-high"></i> 1. Telemetry[cite: 6]
                 </button>
-                <button onclick="switchTab('ai-health')" id="tab-ai-health" class="tab-btn px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-brain"></i> 2. AI Analytics & Health[cite: 3, 6]
+                <button onclick="switchTab('ai-health')" id="tab-ai-health" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-brain"></i> 2. AI Health[cite: 3, 6]
                 </button>
-                <button onclick="switchTab('simulator')" id="tab-simulator" class="tab-btn px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-cubes"></i> 3. 3D Twin Simulator[cite: 3, 6]
+                <button onclick="switchTab('simulator')" id="tab-simulator" class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-cubes"></i> 3. 3D Simulator[cite: 3, 6]
                 </button>
             </nav>
 
             <!-- Status & PDF Export -->
-            <div class="flex items-center space-x-3">
-                <button onclick="downloadPDFReport()" class="bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400 text-cyan-300 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,211,238,0.2)]">
-                    <i class="fa-solid fa-file-arrow-down text-cyan-400"></i> Export Compliance Report
+            <div class="flex items-center space-x-2">
+                <button onclick="downloadPDFReport()" class="bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400 text-cyan-300 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+                    <i class="fa-solid fa-file-arrow-down text-cyan-400"></i> <span class="hidden md:inline">Export Report</span>
                 </button>
-                <div id="scada-status-badge" class="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 px-3 py-1.5 rounded-full text-xs font-semibold">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span id="system-status-text">SCADA SYNC: ACTIVE</span>
+                <div id="scada-status-badge" class="hidden xl:flex items-center space-x-1.5 bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 px-2.5 py-1.5 rounded-full text-xs font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span id="system-status-text">SCADA: ONLINE</span>
                 </div>
             </div>
         </header>
