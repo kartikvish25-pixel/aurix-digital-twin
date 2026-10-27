@@ -16,118 +16,73 @@
 </head>
 <body class="bg-[#f4f7fb] text-slate-800 antialiased selection:bg-cyan-500 selection:text-white">
 
-    <!-- ================================================================= -->
-    <!-- SECURE LOGIN PAGE OVERLAY (IEC 62443 RBAC)                        -->
-    <!-- ================================================================= -->
+    <!-- SECURE LOGIN MODAL -->
     <div id="login-overlay" class="fixed inset-0 z-50 bg-[#0b1528]/95 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300 hidden">
         <div class="bg-slate-900 border border-cyan-500/40 rounded-2xl p-8 max-w-md w-full shadow-[0_0_45px_rgba(34,211,238,0.22)] relative overflow-hidden text-slate-100">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-cyan-500/20 border border-cyan-400 rounded-2xl mx-auto flex items-center justify-center text-cyan-400 text-2xl mb-3 shadow-[0_0_20px_rgba(34,211,238,0.3)]">
+                <div class="w-16 h-16 bg-cyan-500/20 border border-cyan-400 rounded-2xl mx-auto flex items-center justify-center text-cyan-400 text-2xl mb-3">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                <span class="text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
-                    IEC 62443 SL-3 RBAC Active
-                </span>
                 <h2 class="text-xl font-bold text-white mt-2">EHV Substation Command Portal</h2>
-                <p class="text-xs text-slate-400 mt-1">AURIX Hackathon 2026 • Team Patanjali (IILM University)</p>
             </div>
-
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Operator ID / Callsign</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-user-astronaut absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-                        <input type="text" id="login-user" value="Exec_01" required placeholder="e.g. Exec_01" class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400">
-                    </div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Operator ID</label>
+                    <input type="text" id="login-user" value="Exec_01" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Encrypted Passkey</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-key absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-                        <input type="password" id="login-pass" value="patanjali2026" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400">
-                    </div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Passkey</label>
+                    <input type="password" id="login-pass" value="patanjali2026" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white">
                 </div>
-                <div id="login-error" class="text-rose-400 text-xs text-center hidden bg-rose-500/10 border border-rose-500/30 py-2 rounded-lg">
-                    Invalid Credentials! Use ID: <strong>Exec_01</strong> &amp; Pass: <strong>patanjali2026</strong>
-                </div>
-                <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-lg text-sm transition shadow-lg cursor-pointer flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-satellite-dish"></i> Initialize Digital Twin Session
-                </button>
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold rounded-lg text-sm cursor-pointer">Login</button>
             </form>
-            <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-400">
-                <span>Role: <strong class="text-cyan-400">Shift Charge Engineer</strong></span>
-                <button type="button" onclick="quickFillLogin()" class="text-cyan-400 hover:underline font-semibold cursor-pointer">Auto-Fill Demo</button>
-            </div>
         </div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- MAIN APPLICATION SHELL (FIXED SIDEBAR + SCROLLABLE RIGHT CONTENT) -->
-    <!-- ================================================================= -->
+    <!-- MAIN SHELL -->
     <div id="main-dashboard" class="flex min-h-screen w-full">
 
-        <!-- ============================================================= -->
-        <!-- FIXED LEFT DARK NAVY SIDEBAR (COLLAPSIBLE)                    -->
-        <!-- ============================================================= -->
+        <!-- FIXED LEFT SIDEBAR -->
         <aside id="app-sidebar" class="w-[248px] h-screen sticky top-0 bg-[#0d1b2a] text-slate-300 flex flex-col justify-between shrink-0 relative overflow-hidden select-none shadow-2xl z-30">
-            
             <div class="relative z-10 overflow-y-auto overflow-x-hidden">
-                <!-- Brand Header -->
                 <div class="px-5 pt-6 pb-5 flex items-center gap-3">
                     <svg class="w-9 h-9 shrink-0" viewBox="0 0 40 40" fill="none">
                         <defs><linearGradient id="aurixLogoGrad" x1="0" y1="0" x2="40" y2="40"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>
                         <path d="M20 4L4 34H13L20 19L27 34H36L20 4Z" fill="url(#aurixLogoGrad)"/>
-                        <path d="M14 27H26L23 32H17L14 27Z" fill="#0ea5e9" opacity="0.85"/>
                     </svg>
                     <div class="leading-tight sidebar-brand-text">
                         <span class="text-xl font-extrabold tracking-wider text-white block">AURIX</span>
-                        <span class="text-[11px] text-slate-400 font-medium tracking-wide block">Digital Twin</span>
+                        <span class="text-[11px] text-slate-400 font-medium block">Digital Twin</span>
                     </div>
                 </div>
 
-                <!-- Navigation Items -->
                 <nav class="px-3.5 space-y-1 mt-2">
-                    <button onclick="switchMainView('dashboard')" id="nav-dashboard" class="sidebar-link active-sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-semibold transition-all cursor-pointer" title="Dashboard">
-                        <i class="fa-solid fa-house text-sm w-4 text-center"></i>
-                        <span class="sidebar-text">Dashboard</span>
+                    <button onclick="switchMainView('dashboard')" id="nav-dashboard" class="sidebar-link active-sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-semibold transition-all cursor-pointer">
+                        <i class="fa-solid fa-house text-sm w-4 text-center"></i><span class="sidebar-text">Dashboard</span>
                     </button>
-
-                    <button onclick="switchMainView('telemetry')" id="nav-telemetry" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer" title="Telemetry & SCADA">
-                        <i class="fa-solid fa-wave-square text-sm w-4 text-center"></i>
-                        <span class="sidebar-text">Telemetry &amp; SCADA</span>
+                    <button onclick="switchMainView('telemetry')" id="nav-telemetry" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">
+                        <i class="fa-solid fa-wave-square text-sm w-4 text-center"></i><span class="sidebar-text">AI &amp; 3D Simulator</span>
                     </button>
-
-                    <button onclick="switchMainView('sld')" id="nav-sld" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer" title="Single Line Diagram">
-                        <i class="fa-solid fa-sitemap text-sm w-4 text-center"></i>
-                        <span class="sidebar-text">Single Line Diagram</span>
+                    <button onclick="switchMainView('sld')" id="nav-sld" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">
+                        <i class="fa-solid fa-sitemap text-sm w-4 text-center"></i><span class="sidebar-text">Single Line Diagram</span>
                     </button>
-
-                    <button onclick="switchMainView('graphs')" id="nav-graphs" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer" title="Live Graphs">
-                        <i class="fa-solid fa-chart-simple text-sm w-4 text-center"></i>
-                        <span class="sidebar-text">Live Graphs</span>
+                    <button onclick="switchMainView('graphs')" id="nav-graphs" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">
+                        <i class="fa-solid fa-chart-simple text-sm w-4 text-center"></i><span class="sidebar-text">Live Graphs</span>
                     </button>
-
-                    <button onclick="switchMainView('logs')" id="nav-logs" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all justify-between cursor-pointer" title="Events & Logs">
-                        <span class="flex items-center gap-3.5">
-                            <i class="fa-regular fa-file-lines text-sm w-4 text-center"></i>
-                            <span class="sidebar-text">Events &amp; Logs</span>
-                        </span>
+                    <button onclick="switchMainView('logs')" id="nav-logs" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all justify-between cursor-pointer">
+                        <span class="flex items-center gap-3.5"><i class="fa-regular fa-file-lines text-sm w-4 text-center"></i><span class="sidebar-text">Events &amp; Logs</span></span>
                         <span id="alert-count-badge" class="bg-rose-500/20 text-rose-400 border border-rose-500/40 px-1.5 py-0.5 rounded text-[10px] font-bold sidebar-text">3</span>
                     </button>
-
-                    <button onclick="switchMainView('reports')" id="nav-reports" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer" title="Reports">
-                        <i class="fa-solid fa-file-invoice text-sm w-4 text-center"></i>
-                        <span class="sidebar-text">Reports</span>
+                    <button onclick="switchMainView('reports')" id="nav-reports" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">
+                        <i class="fa-solid fa-file-invoice text-sm w-4 text-center"></i><span class="sidebar-text">Reports</span>
                     </button>
-
-                    <button onclick="switchMainView('settings')" id="nav-settings" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer" title="Settings">
-                        <i class="fa-solid fa-gear text-sm w-4 text-center"></i>
-                        <span class="sidebar-text">Settings</span>
+                    <button onclick="switchMainView('settings')" id="nav-settings" class="sidebar-link w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-[13px] font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">
+                        <i class="fa-solid fa-gear text-sm w-4 text-center"></i><span class="sidebar-text">Settings</span>
                     </button>
                 </nav>
             </div>
 
-            <!-- Bottom Section: System Status + Team Patanjali Profile Card -->
+            <!-- Bottom Status + Profile -->
             <div class="relative z-10 p-3 mt-auto space-y-2.5 bg-[#0d1b2a]">
                 <div class="bg-[#15263b]/90 border border-slate-700/70 rounded-xl p-2.5 shadow-inner">
                     <div class="flex items-center gap-2">
@@ -135,8 +90,7 @@
                         <span id="system-status-text" class="text-xs font-semibold text-emerald-400 sidebar-text">Online</span>
                     </div>
                 </div>
-
-                <div class="bg-[#15263b]/60 border border-slate-700/60 rounded-xl p-2.5 flex items-center justify-between cursor-pointer hover:bg-[#15263b] transition" onclick="openLoginModal()" title="Team Patanjali">
+                <div class="bg-[#15263b]/60 border border-slate-700/60 rounded-xl p-2.5 flex items-center justify-between cursor-pointer hover:bg-[#15263b] transition" onclick="openLoginModal()">
                     <div class="flex items-center gap-2 overflow-hidden">
                         <div class="w-7 h-7 rounded-full bg-[#1e3a5f] text-white font-bold text-xs flex items-center justify-center shrink-0">TP</div>
                         <div class="leading-tight sidebar-profile-info overflow-hidden">
@@ -146,356 +100,182 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Decorative Bottom Glowing Wave SVG -->
-            <svg class="absolute bottom-0 left-0 w-full h-36 pointer-events-none opacity-30" viewBox="0 0 250 140" fill="none" preserveAspectRatio="none">
-                <path d="M-20 110 C 60 65, 150 145, 270 85" stroke="#06b6d4" stroke-width="1.5" stroke-opacity="0.5"/>
-            </svg>
         </aside>
 
-        <!-- ============================================================= -->
-        <!-- RIGHT SCROLLABLE CONTENT AREA                                 -->
-        <!-- ============================================================= -->
+        <!-- RIGHT CONTENT AREA -->
         <div class="flex-1 flex flex-col min-w-0">
 
-            <!-- TOP BAR WITH SIDEBAR TOGGLE BUTTON -->
+            <!-- TOP BAR -->
             <header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-7 py-3.5 flex items-center justify-between gap-4 sticky top-0 z-20">
                 <div class="flex items-center gap-3 w-full max-w-md">
-                    <!-- Sidebar Open/Close Toggle Button -->
                     <button onclick="toggleSidebar()" class="text-slate-600 hover:text-slate-900 bg-slate-100 p-2 rounded-xl transition cursor-pointer" title="Toggle Sidebar">
                         <i class="fa-solid fa-bars text-sm"></i>
                     </button>
                     <div class="relative w-full">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="global-search" onkeyup="handleGlobalSearch(event)" placeholder="Search equipment, parameters, or events..." class="w-full bg-slate-50/90 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition">
+                        <input type="text" id="global-search" onkeyup="handleGlobalSearch(event)" placeholder="Search equipment, parameters, or events..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-700 focus:outline-none focus:border-blue-500">
                     </div>
                 </div>
-
                 <div class="flex items-center gap-3">
-                    <button onclick="switchMainView('logs')" class="relative text-slate-500 hover:text-slate-800 transition cursor-pointer p-2" title="View Events & Alerts">
+                    <button onclick="switchMainView('logs')" class="relative text-slate-500 hover:text-slate-800 p-2 cursor-pointer">
                         <i class="fa-regular fa-bell text-lg"></i>
-                        <span class="w-2 h-2 rounded-full bg-rose-500 absolute top-1 right-1 ring-2 ring-white"></span>
+                        <span class="w-2 h-2 rounded-full bg-rose-500 absolute top-1 right-1"></span>
                     </button>
                 </div>
             </header>
 
-            <!-- HERO BANNER WITH TRANSMISSION TOWER WATERMARK -->
-            <div class="relative px-7 pt-5 pb-4 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/60 overflow-hidden bg-gradient-to-r from-[#f4f7fb] via-[#f4f7fb] to-[#e9f0f8]">
-                <svg class="absolute right-4 -top-2 h-44 w-64 text-slate-300/45 pointer-events-none" viewBox="0 0 200 160" fill="none" stroke="currentColor" stroke-width="1.2">
-                    <path d="M130 10 L105 150 M130 10 L155 150 M112 50 L148 50 M100 85 L160 85 M118 30 L142 30 M92 50 L168 50 M85 85 L175 85"/>
-                    <path d="M115 50 L145 85 M145 50 L115 85 M110 85 L150 130 M150 85 L110 130"/>
-                    <path d="M0 60 Q 65 95 100 85 M0 35 Q 65 70 112 50"/>
-                </svg>
-
+            <!-- HERO BANNER -->
+            <div class="relative px-7 pt-5 pb-4 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/60 bg-gradient-to-r from-[#f4f7fb] via-[#f4f7fb] to-[#e9f0f8]">
                 <div class="relative z-10">
-                    <span class="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-emerald-100/90 text-emerald-700 mb-1.5">
-                        EHV Substation
-                    </span>
+                    <span class="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 mb-1.5">EHV Substation</span>
                     <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">EHV 400/220 kV Digital Twin</h1>
-                    <p class="text-xs text-slate-500 font-medium mt-0.5">
-                        AURIX Hackathon 2026 <span class="mx-1.5 text-slate-300">•</span> Team Patanjali
-                    </p>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">AURIX Hackathon 2026 • Team Patanjali</p>
                 </div>
-
-                <div class="relative z-10 flex flex-wrap items-center gap-6">
-                    <div class="flex items-start gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 shadow-sm mt-0.5">
-                            <i class="fa-solid fa-diagram-project text-xs"></i>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 font-medium block">Substation Bay</span>
-                            <span class="text-xs font-bold text-slate-800 block">400/220kV</span>
-                            <span class="text-[11px] text-slate-500 block">Greater Noida Grid</span>
-                        </div>
-                    </div>
-
-                    <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
-
-                    <div class="flex items-start gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 shadow-sm mt-0.5">
-                            <i class="fa-solid fa-shield-halved text-xs"></i>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 font-medium block">Protocol</span>
-                            <span class="text-xs font-bold text-slate-800 block">OPC-UA / IEC 61850</span>
-                            <span class="text-[11px] text-emerald-600 font-medium block">GOOSE: <span id="goose-latency">12 ms</span></span>
-                        </div>
-                    </div>
-
-                    <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
-
-                    <div class="flex items-start gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 shadow-sm mt-0.5">
-                            <i class="fa-regular fa-clock text-xs"></i>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 font-medium block">Last Sync</span>
-                            <span id="last-sync-time" class="text-xs font-bold text-slate-800 block">8:35:30 AM</span>
-                            <span id="current-date-label" class="text-[11px] text-slate-500 block">Tue, 27 Oct 2026</span>
-                        </div>
-                    </div>
-
-                    <button onclick="downloadPDFReport()" class="bg-[#1b2b44] hover:bg-[#0f1d33] text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-download text-xs"></i>
-                        <span>Export Report</span>
-                    </button>
-                </div>
+                <button onclick="downloadPDFReport()" class="bg-[#1b2b44] hover:bg-[#0f1d33] text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-download text-xs"></i><span>Export Report</span>
+                </button>
             </div>
 
-            <!-- MAIN CONTENT BODY (SCROLLABLE) -->
+            <!-- SCROLLABLE MAIN CONTENT -->
             <main class="p-6 space-y-5 max-w-[1600px] overflow-y-auto">
 
                 <!-- VIEW 1: DASHBOARD -->
                 <div id="view-dashboard" class="main-view-section space-y-5">
                     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-                        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between kpi-light-card">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-base"><i class="fa-solid fa-bolt"></i></div>
-                                    <div>
-                                        <span class="text-xs text-slate-500 font-medium block">Total Load</span>
-                                        <div class="flex items-baseline gap-1 mt-0.5">
-                                            <span id="top-total-load" class="text-2xl font-extrabold text-slate-900">687.3</span>
-                                            <span class="text-sm font-semibold text-slate-600">MW</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4 flex items-end justify-between">
-                                <div>
-                                    <span class="text-xs font-bold text-emerald-600 flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up text-[10px]"></i> +2.4%</span>
-                                    <span class="text-[11px] text-slate-400 block">vs. last hour</span>
-                                </div>
-                                <svg class="w-28 h-10 overflow-visible" viewBox="0 0 120 40">
-                                    <defs><linearGradient id="sparkBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.28"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/></linearGradient></defs>
-                                    <path d="M5 32 Q 25 25, 40 28 T 75 18 T 115 8 L 115 38 L 5 38 Z" fill="url(#sparkBlue)"/>
-                                    <path d="M5 32 Q 25 25, 40 28 T 75 18 T 115 8" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
-                                </svg>
-                            </div>
+                        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                            <span class="text-xs text-slate-500 font-medium block">Total Load</span>
+                            <span id="top-total-load" class="text-2xl font-extrabold text-slate-900">687.3 MW</span>
                         </div>
-
-                        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between kpi-light-card">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-base"><i class="fa-solid fa-wave-square"></i></div>
-                                    <div>
-                                        <span class="text-xs text-slate-500 font-medium block">Total Reactive Power</span>
-                                        <div class="flex items-baseline gap-1 mt-0.5">
-                                            <span id="top-reactive-power" class="text-2xl font-extrabold text-slate-900">112.6</span>
-                                            <span class="text-sm font-semibold text-slate-600">MVAr</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4 flex items-end justify-between">
-                                <div>
-                                    <span class="text-xs font-bold text-emerald-600 flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up text-[10px]"></i> +1.8%</span>
-                                    <span class="text-[11px] text-slate-400 block">vs. last hour</span>
-                                </div>
-                                <svg class="w-28 h-10 overflow-visible" viewBox="0 0 120 40">
-                                    <defs><linearGradient id="sparkPurple" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a855f7" stop-opacity="0.25"/><stop offset="100%" stop-color="#a855f7" stop-opacity="0.0"/></linearGradient></defs>
-                                    <path d="M5 34 Q 30 30, 50 26 T 85 20 T 115 10 L 115 38 L 5 38 Z" fill="url(#sparkPurple)"/>
-                                    <path d="M5 34 Q 30 30, 50 26 T 85 20 T 115 10" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/>
-                                </svg>
-                            </div>
+                        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                            <span class="text-xs text-slate-500 font-medium block">Reactive Power</span>
+                            <span id="top-reactive-power" class="text-2xl font-extrabold text-slate-900">112.6 MVAr</span>
                         </div>
-
-                        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between kpi-light-card">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-base"><i class="fa-solid fa-gauge-high"></i></div>
-                                    <div>
-                                        <span class="text-xs text-slate-500 font-medium block">System Frequency</span>
-                                        <div class="flex items-baseline gap-1 mt-0.5">
-                                            <span id="top-sys-freq" class="text-2xl font-extrabold text-slate-900">50.02</span>
-                                            <span class="text-sm font-semibold text-slate-600">Hz</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4 flex items-end justify-between">
-                                <div class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-teal-500 text-xs"></i><span class="text-xs font-semibold text-teal-600">Within Range</span></div>
-                                <svg class="w-28 h-10 overflow-visible" viewBox="0 0 120 40">
-                                    <defs><linearGradient id="sparkTeal" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#14b8a6" stop-opacity="0.25"/><stop offset="100%" stop-color="#14b8a6" stop-opacity="0.0"/></linearGradient></defs>
-                                    <path d="M5 32 Q 30 28, 55 25 T 90 18 T 115 9 L 115 38 L 5 38 Z" fill="url(#sparkTeal)"/>
-                                    <path d="M5 32 Q 30 28, 55 25 T 90 18 T 115 9" fill="none" stroke="#14b8a6" stroke-width="2" stroke-linecap="round"/>
-                                </svg>
-                            </div>
+                        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                            <span class="text-xs text-slate-500 font-medium block">System Frequency</span>
+                            <span id="top-sys-freq" class="text-2xl font-extrabold text-slate-900">50.02 Hz</span>
                         </div>
-
-                        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm relative overflow-hidden flex flex-col justify-between kpi-light-card">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-base"><i class="fa-solid fa-shield-heart"></i></div>
-                                    <div>
-                                        <span class="text-xs text-slate-500 font-medium block">Grid Status</span>
-                                        <div class="mt-0.5"><span id="top-grid-status" class="text-2xl font-extrabold text-slate-900">Stable</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4 flex items-end justify-between">
-                                <span id="top-grid-subtext" class="text-xs text-slate-500 font-medium">No critical alerts</span>
-                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                            </div>
+                        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                            <span class="text-xs text-slate-500 font-medium block">Grid Status</span>
+                            <span id="top-grid-status" class="text-2xl font-extrabold text-slate-900">Stable</span>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-                        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm flex flex-col justify-between">
-                            <div>
-                                <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-network-wired text-slate-600 text-sm"></i><h2 class="text-sm font-bold text-slate-800">Substation Overview</h2></div>
-                                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live
-                                    </span>
-                                </div>
-
-                                <div class="divide-y divide-slate-100 text-xs mt-1">
-                                    <div class="py-3 flex items-center justify-between"><span class="flex items-center gap-2.5 text-slate-500 font-medium"><i class="fa-solid fa-flask text-blue-500 w-4 text-center"></i> SF6 Gas Pressure</span><span class="font-bold text-emerald-600">6.4 bar (OK)</span></div>
-                                    <div class="py-3 flex items-center justify-between"><span class="flex items-center gap-2.5 text-slate-500 font-medium"><i class="fa-solid fa-car-battery text-blue-500 w-4 text-center"></i> DC Battery Bank</span><span class="font-bold text-slate-800">220.4 V DC</span></div>
-                                    <div class="py-3 flex items-center justify-between"><span class="flex items-center gap-2.5 text-slate-500 font-medium"><i class="fa-solid fa-sliders text-blue-500 w-4 text-center"></i> OLTC Tap Position</span><span class="font-bold text-slate-800">Tap #9 (Auto)</span></div>
-                                    <div class="py-3 flex items-center justify-between"><span class="flex items-center gap-2.5 text-slate-500 font-medium"><i class="fa-solid fa-temperature-half text-blue-500 w-4 text-center"></i> Ambient Temperature</span><span id="overview-ambient-temp" class="font-bold text-slate-800">32.7 °C</span></div>
-                                </div>
-
-                                <div class="my-3 rounded-xl bg-gradient-to-b from-slate-50/70 to-blue-50/50 border border-slate-100 p-3 flex flex-col items-center justify-end overflow-hidden h-36 relative">
-                                    <svg viewBox="0 0 360 110" class="w-full h-full text-[#6482a6]" fill="none" stroke="currentColor">
-                                        <path d="M10 35 Q 95 58 175 28 Q 255 58 330 22" stroke-width="0.8" opacity="0.55"/>
-                                        <path d="M10 50 Q 95 70 175 44 Q 255 70 330 38" stroke-width="0.8" opacity="0.45"/>
-                                        <path d="M95 25 L82 100 M95 25 L108 100 M85 45 L105 45 M80 65 L110 65 M88 45 L102 65 M102 45 L88 65" stroke-width="1.2"/>
-                                        <path d="M175 12 L158 100 M175 12 L192 100 M160 32 L190 32 M154 54 L196 54 M164 32 L186 54 M186 32 L164 54 M160 54 L190 82 M190 54 L160 82" stroke-width="1.4"/>
-                                        <path d="M315 8 L296 100 M315 8 L334 100 M298 28 L332 28 M292 50 L338 50 M302 28 L328 50 M328 28 L302 50 M298 50 L332 80 M332 50 L298 80" stroke-width="1.4"/>
-                                        <rect x="35" y="74" width="24" height="26" fill="currentColor" fill-opacity="0.2" stroke-width="1.2"/>
-                                        <rect x="122" y="70" width="28" height="30" fill="currentColor" fill-opacity="0.2" stroke-width="1.2"/>
-                                        <rect x="215" y="66" width="38" height="34" fill="currentColor" fill-opacity="0.25" stroke-width="1.2"/>
-                                        <line x1="225" y1="66" x2="225" y2="52" stroke-width="1.5"/><line x1="235" y1="66" x2="235" y2="52" stroke-width="1.5"/><line x1="245" y1="66" x2="245" y2="52" stroke-width="1.5"/>
-                                        <line x1="5" y1="100" x2="355" y2="100" stroke-width="1.5" opacity="0.6"/>
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <div class="divide-y divide-slate-100 border-t border-slate-100 pt-1 text-xs">
-                                <button onclick="switchMainView('sld')" class="w-full py-2.5 flex items-center justify-between text-slate-700 hover:text-blue-600 font-semibold transition cursor-pointer">
-                                    <span class="flex items-center gap-2.5"><i class="fa-solid fa-sitemap text-blue-500 w-4 text-center"></i> 2D Single Line Diagram</span>
-                                    <span class="text-slate-400 hover:text-blue-600 text-[11px] font-medium">View &rarr;</span>
-                                </button>
-                                <button onclick="switchMainView('graphs')" class="w-full py-2.5 flex items-center justify-between text-slate-700 hover:text-blue-600 font-semibold transition cursor-pointer">
-                                    <span class="flex items-center gap-2.5"><i class="fa-solid fa-chart-line text-blue-500 w-4 text-center"></i> Live Telemetry &amp; FFT Graphs</span>
-                                    <span class="text-slate-400 hover:text-blue-600 text-[11px] font-medium">View &rarr;</span>
-                                </button>
-                            </div>
+                    <!-- SCADA CHART + METRICS -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                        <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                            <h2 class="text-sm font-bold text-slate-800 mb-3"><i class="fa-solid fa-wave-square text-blue-600"></i> Real-Time SCADA Waveform</h2>
+                            <div class="h-60 relative"><canvas id="telemetryChart"></canvas></div>
                         </div>
-
-                        <div class="lg:col-span-8 flex flex-col justify-between space-y-5">
-                            <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm">
-                                <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-100">
-                                    <div class="flex items-center gap-2">
-                                        <i class="fa-solid fa-wave-square text-blue-600 text-sm"></i>
-                                        <h2 class="text-sm font-bold text-slate-800">Real-Time SCADA Telemetry Dashboards (IEC 61850 Stream)</h2>
-                                    </div>
-                                    <div class="flex items-center bg-slate-100 p-0.5 rounded-lg text-[11px] font-semibold">
-                                        <button onclick="setChartTimeframe('1H', this)" class="time-pill bg-[#1b2b44] text-white px-2.5 py-1 rounded-md transition cursor-pointer">1H</button>
-                                        <button onclick="setChartTimeframe('6H', this)" class="time-pill text-slate-500 hover:text-slate-800 px-2.5 py-1 rounded-md transition cursor-pointer">6H</button>
-                                        <button onclick="setChartTimeframe('24H', this)" class="time-pill text-slate-500 hover:text-slate-800 px-2.5 py-1 rounded-md transition cursor-pointer">24H</button>
-                                        <button onclick="setChartTimeframe('7D', this)" class="time-pill text-slate-500 hover:text-slate-800 px-2.5 py-1 rounded-md transition cursor-pointer">7D</button>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center pt-4">
-                                    <div class="md:col-span-8">
-                                        <div class="h-52 relative"><canvas id="telemetryChart"></canvas></div>
-                                        <div class="flex items-center gap-5 mt-2 pl-2 text-[11px] font-medium text-slate-500">
-                                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> Voltage (kV)</span>
-                                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block"></span> Current (A)</span>
-                                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span> Power (MW)</span>
-                                        </div>
-                                    </div>
-                                    <div class="md:col-span-4 bg-slate-50/70 border border-slate-200/70 rounded-xl p-4 space-y-3.5">
-                                        <h3 class="text-xs font-bold text-slate-800 border-b border-slate-200/70 pb-2">Latest Values</h3>
-                                        <div class="flex items-center justify-between text-xs"><span class="flex items-center gap-2 text-slate-500 font-medium"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Voltage</span><span id="latest-val-voltage" class="font-bold text-slate-900">400.4 kV</span></div>
-                                        <div class="flex items-center justify-between text-xs border-t border-slate-200/50 pt-2.5"><span class="flex items-center gap-2 text-slate-500 font-medium"><span class="w-2 h-2 rounded-full bg-teal-500"></span> Current</span><span id="latest-val-current" class="font-bold text-slate-900">212.7 A</span></div>
-                                        <div class="flex items-center justify-between text-xs border-t border-slate-200/50 pt-2.5"><span class="flex items-center gap-2 text-slate-500 font-medium"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Power</span><span id="latest-val-power" class="font-bold text-slate-900">126.9 MW</span></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm flex flex-col justify-between kpi-light-card">
-                                    <div class="flex items-center justify-between gap-1">
-                                        <span class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600"><span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-[10px]"><i class="fa-solid fa-bolt"></i></span> Bus Voltage</span>
-                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-600">±5% Limit</span>
-                                    </div>
-                                    <div class="my-3 flex items-baseline justify-between"><div><span id="val-voltage" class="text-2xl font-extrabold text-slate-900">400.4</span> <span class="text-xs font-semibold text-slate-500">kV</span></div><span class="text-[10px] font-semibold text-emerald-600 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Nominal</span></div>
-                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div id="bar-voltage" class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: 82%"></div></div>
-                                </div>
-
-                                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm flex flex-col justify-between kpi-light-card">
-                                    <div class="flex items-center justify-between gap-1">
-                                        <span class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600"><span class="w-5 h-5 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-[10px] font-bold">A</span> Feeder Current</span>
-                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-purple-50 text-purple-600">CT 1000/1A</span>
-                                    </div>
-                                    <div class="my-3 flex items-baseline justify-between"><div><span id="val-current" class="text-2xl font-extrabold text-slate-900">212.7</span> <span class="text-xs font-semibold text-slate-500">A</span></div><span class="text-[10px] text-slate-400 font-medium">Max: 350A</span></div>
-                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div id="bar-current" class="bg-teal-500 h-full rounded-full transition-all duration-500" style="width: 62%"></div></div>
-                                </div>
-
-                                <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm flex flex-col justify-between kpi-light-card">
-                                    <div class="flex items-center justify-between gap-1">
-                                        <span class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600"><span class="w-5 h-5 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-[10px]"><i class="fa-solid fa-wave-square"></i></span> Power Factor</span>
-                                        <span class="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-50 text-amber-600">Grid Sync</span>
-                                    </div>
-                                    <div class="my-3 flex items-baseline justify-between"><span id="val-pf" class="text-2xl font-extrabold text-amber-500">0.86</span><span id="val-freq" class="text-[11px] font-bold px-2 py-0.5 rounded bg-cyan-50 text-cyan-700 border border-cyan-200">50.04 Hz</span></div>
-                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div id="bar-pf" class="bg-amber-400 h-full rounded-full transition-all duration-500" style="width: 86%"></div></div>
-                                </div>
-                            </div>
-
-                            <span id="val-power" class="hidden">126.9</span><div id="bar-power" class="hidden"></div>
-
-                            <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-                                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-bolt-lightning text-slate-700 text-xs"></i><h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">3-PHASE (R-Y-B) Symmetrical Bus Analyzer</h3></div>
-                                    <span class="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">Phase Unbalance: &lt; 0.4% <i class="fa-solid fa-circle-check text-emerald-500"></i></span>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                                    <div class="rounded-xl border border-rose-200/80 bg-rose-50/30 px-3.5 py-2.5"><span class="text-[10px] font-bold text-rose-600 uppercase flex items-center gap-1"><i class="fa-solid fa-plus text-[9px]"></i> R-PHASE (L1)</span><p id="ryb-r" class="text-xs font-bold text-slate-800 mt-1 font-mono">231.2 kV <span class="text-slate-300 mx-1">|</span> 212.4 A</p></div>
-                                    <div class="rounded-xl border border-amber-200/80 bg-amber-50/30 px-3.5 py-2.5"><span class="text-[10px] font-bold text-amber-600 uppercase flex items-center gap-1"><i class="fa-solid fa-plus text-[9px]"></i> Y-PHASE (L2)</span><p id="ryb-y" class="text-xs font-bold text-slate-800 mt-1 font-mono">231.0 kV <span class="text-slate-300 mx-1">|</span> 213.1 A</p></div>
-                                    <div class="rounded-xl border border-blue-200/80 bg-blue-50/30 px-3.5 py-2.5"><span class="text-[10px] font-bold text-blue-600 uppercase flex items-center gap-1"><i class="fa-solid fa-plus text-[9px]"></i> B-PHASE (L3)</span><p id="ryb-b" class="text-xs font-bold text-slate-800 mt-1 font-mono">231.4 kV <span class="text-slate-300 mx-1">|</span> 212.7 A</p></div>
-                                </div>
-                            </div>
+                        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+                            <h2 class="text-sm font-bold text-slate-800">Quick Metrics</h2>
+                            <div class="flex justify-between text-xs py-2 border-b border-slate-100"><span>Bus Voltage</span><strong id="val-voltage">400.4 kV</strong></div>
+                            <div class="flex justify-between text-xs py-2 border-b border-slate-100"><span>Feeder Current</span><strong id="val-current">212.7 A</strong></div>
+                            <div class="flex justify-between text-xs py-2 border-b border-slate-100"><span>Active Power</span><strong id="val-power">126.9 MW</strong></div>
+                            <div class="flex justify-between text-xs py-2"><span>Power Factor</span><strong id="val-pf">0.86</strong></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- VIEW 2: TELEMETRY & SCADA -->
+                <!-- VIEW 2: AI & 3D SIMULATOR (WITH 3D ISOMETRIC YARD & SLIDERS) -->
                 <div id="view-telemetry" class="main-view-section hidden space-y-6">
-                    <div class="bg-white border border-slate-200/90 p-6 rounded-2xl shadow-sm space-y-6">
-                        <div class="flex flex-wrap justify-between items-center gap-2">
-                            <div>
-                                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-microchip text-blue-600"></i> AI/ML Predictive Asset Health &amp; Dissolved Gas Analysis (DGA)</h3>
-                                <p class="text-xs text-slate-500">Random Forest Regressor + Isolation Forest Anomaly Detection Engine</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- 3D Isometric Yard SVG -->
+                        <div class="lg:col-span-7 bg-[#0d1b2a] border border-slate-800 rounded-2xl p-6 text-white flex flex-col justify-between shadow-xl">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-sm font-bold flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span> Live 3D Isometric Substation Yard (400/220 kV)
+                                </h3>
+                                <span id="twin-alert-pill" class="text-xs bg-cyan-500/20 border border-cyan-400 text-cyan-300 px-3 py-1 rounded-full font-semibold">STATE: NORMAL</span>
                             </div>
-                            <span id="ai-severity-badge" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">SEVERITY: NORMAL</span>
+                            <div class="my-4 flex items-center justify-center">
+                                <svg viewBox="0 0 760 390" class="w-full h-auto max-h-[340px]">
+                                    <polygon points="380,25 720,195 380,365 40,195" fill="#0f172a" stroke="#1e293b" stroke-width="3"/>
+                                    <line x1="160" y1="125" x2="430" y2="260" stroke="#22d3ee" stroke-width="4" class="glow-line"/>
+                                    <text x="135" y="108" fill="#22d3ee" font-size="11" font-weight="bold">400 kV EHV INCOMING BUS</text>
+                                    <line id="iso-flow-1" x1="250" y1="170" x2="310" y2="140" stroke="#22d3ee" stroke-width="3" class="power-flow-line"/>
+                                    <line x1="370" y1="230" x2="430" y2="200" stroke="#22d3ee" stroke-width="3" class="power-flow-line"/>
+                                    <!-- TX-1 -->
+                                    <g id="iso-tx1-group" transform="translate(275, 85)">
+                                        <polygon id="iso-tx1-box" points="50,0 100,25 100,80 50,105 0,80 0,25" fill="#10b981" fill-opacity="0.22" stroke="#10b981" stroke-width="2.5"/>
+                                        <polyline id="iso-tx1-inner1" points="0,25 50,50 100,25" fill="none" stroke="#10b981" stroke-width="1.8"/>
+                                        <line id="iso-tx1-inner2" x1="50" y1="50" x2="50" y2="105" stroke="#10b981" stroke-width="1.8"/>
+                                        <text x="8" y="-12" fill="#ffffff" font-size="11" font-weight="bold">TX-1 (315 MVA)</text>
+                                        <text id="iso-tx1-temp-label" x="32" y="42" fill="#ecfdf5" font-size="12" font-weight="bold">68°C</text>
+                                    </g>
+                                    <!-- TX-2 -->
+                                    <g id="iso-tx2-group" transform="translate(415, 150)">
+                                        <polygon points="45,0 90,22 90,72 45,95 0,72 0,22" fill="#06b6d4" fill-opacity="0.18" stroke="#22d3ee" stroke-width="2"/>
+                                        <text x="6" y="-10" fill="#cbd5e1" font-size="11" font-weight="bold">TX-2 (315 MVA)</text>
+                                        <text x="30" y="38" fill="#cffafe" font-size="11" font-weight="bold">64°C</text>
+                                    </g>
+                                    <line id="iso-flow-2" x1="375" y1="165" x2="455" y2="205" stroke="#10b981" stroke-width="3" class="power-flow-line"/>
+                                    <line x1="340" y1="285" x2="620" y2="145" stroke="#10b981" stroke-width="4" class="glow-emerald"/>
+                                    <text x="470" y="305" fill="#10b981" font-size="11" font-weight="bold">220 kV OUTGOING BUSBAR</text>
+                                </svg>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="bg-slate-50 border border-slate-200/80 p-4 rounded-xl"><p class="text-xs text-slate-500 font-medium">TX-1 Health Index</p><p id="ai-health-idx" class="text-3xl font-extrabold text-emerald-600 mt-1">92%</p></div>
-                            <div class="bg-slate-50 border border-slate-200/80 p-4 rounded-xl"><p class="text-xs text-slate-500 font-medium">Winding Hot-Spot Temp</p><p id="ai-hotspot-temp" class="text-3xl font-extrabold text-amber-500 mt-1">80.4 °C</p></div>
-                            <div class="bg-slate-50 border border-slate-200/80 p-4 rounded-xl"><p class="text-xs text-slate-500 font-medium">Failure Probability</p><p id="ai-fail-prob" class="text-3xl font-extrabold text-blue-600 mt-1">12.4%</p></div>
-                            <div class="bg-slate-50 border border-slate-200/80 p-4 rounded-xl"><p class="text-xs text-slate-500 font-medium">Estimated RUL</p><p id="ai-rul-days" class="text-3xl font-extrabold text-purple-600 mt-1">198 Days</p></div>
+
+                        <!-- What-If Sliders & AI Diagnostics -->
+                        <div class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-sliders text-blue-600"></i> What-If Simulation</h3>
+                                <button onclick="injectCriticalFault()" class="py-1 px-3 rounded-lg bg-rose-600 text-white text-xs font-semibold cursor-pointer">Inject Fault</button>
+                            </div>
+                            <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
+                                <div>
+                                    <label class="font-semibold block mb-1">Load (%) <span id="lbl-load" class="text-blue-600 float-right">75%</span></label>
+                                    <input id="slider-load" type="range" min="40" max="140" value="75" oninput="runSimulation()" class="w-full accent-blue-600 cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="font-semibold block mb-1">Top Oil Temp (°C) <span id="lbl-temp" class="text-amber-600 float-right">68 °C</span></label>
+                                    <input id="slider-temp" type="range" min="45" max="115" value="68" oninput="runSimulation()" class="w-full accent-amber-500 cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="font-semibold block mb-1">THD (%) <span id="lbl-thd" class="text-purple-600 float-right">2.5%</span></label>
+                                    <input id="slider-thd" type="range" min="1.0" max="15.0" step="0.5" value="2.5" oninput="runSimulation()" class="w-full accent-purple-600 cursor-pointer">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                                <div class="bg-slate-50 p-2.5 rounded-lg border">Hotspot: <strong id="sim-out-hotspot" class="text-amber-600 block">82.1 °C</strong></div>
+                                <div class="bg-slate-50 p-2.5 rounded-lg border">Risk: <strong id="sim-out-risk" class="text-rose-600 block">12.4 %</strong></div>
+                                <div class="bg-slate-50 p-2.5 rounded-lg border">RUL: <strong id="sim-out-rul" class="text-emerald-600 block">198 Days</strong></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- VIEW 3: SINGLE LINE DIAGRAM -->
+                <!-- VIEW 3: 2D SINGLE LINE DIAGRAM (SLD) -->
                 <div id="view-sld" class="main-view-section hidden space-y-5">
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">
-                        <div class="flex flex-wrap justify-between items-center gap-2">
-                            <div><h2 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-sitemap text-blue-600"></i> 2D Single Line Diagram (SLD)</h2><p class="text-xs text-slate-500">Click on <strong class="text-blue-600">CB-1 Breaker</strong> to toggle</p></div>
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h2 class="text-base font-bold text-slate-800"><i class="fa-solid fa-sitemap text-blue-600"></i> 2D Single Line Diagram (SLD) — EHV Switchyard</h2>
+                                <p class="text-xs text-slate-500">Interactive Topology: Click <strong class="text-blue-600">CB-1 Breaker</strong> below to manually trip/close.</p>
+                            </div>
                             <span id="sld-status-tag" class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-semibold">All Feeders Energized</span>
                         </div>
                         <div class="bg-[#0b1528] border border-slate-800 rounded-xl p-4 overflow-x-auto shadow-inner">
                             <svg viewBox="0 0 960 540" class="w-full h-auto min-w-[780px]">
-                                <line x1="50" y1="95" x2="910" y2="95" stroke="#22d3ee" stroke-width="6"/>
+                                <defs><pattern id="sld-grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#1e293b" stroke-width="0.7"/></pattern></defs>
+                                <rect width="960" height="540" fill="url(#sld-grid)"/>
+
+                                <!-- 400kV Busbar -->
+                                <line x1="50" y1="95" x2="910" y2="95" stroke="#22d3ee" stroke-width="6" class="glow-line"/>
                                 <text x="55" y="84" fill="#22d3ee" font-size="12" font-weight="bold">400 kV MAIN BUSBAR - I (BUS-A)</text>
-                                <rect x="235" y="195" width="30" height="30" fill="#10b981" rx="5" onclick="toggleManualBreakerCB1()" class="cursor-pointer"/>
-                                <text x="275" y="210" fill="#e2e8f0" font-size="11" font-weight="bold" id="sld-cb1-txt">CB-1 (CLOSED)</text>
-                                <line x1="60" y1="410" x2="900" y2="410" stroke="#10b981" stroke-width="6"/>
+
+                                <!-- Clickable Breaker CB-1 -->
+                                <g onclick="toggleManualBreakerCB1()" class="cursor-pointer hover:opacity-80">
+                                    <rect id="sld-breaker-1" x="235" y="195" width="30" height="30" fill="#10b981" rx="5" stroke="#ffffff" stroke-width="1.5"/>
+                                    <text x="275" y="210" fill="#e2e8f0" font-size="11" font-weight="bold" id="sld-cb1-txt">CB-1 (CLOSED)</text>
+                                    <text x="275" y="222" fill="#38bdf8" font-size="9">Click to Trip/Close</text>
+                                </g>
+
+                                <!-- Transformer TX-1 -->
+                                <circle id="sld-tx1-top" cx="250" cy="285" r="22" stroke="#22d3ee" stroke-width="3.5" fill="#0f172a"/>
+                                <circle id="sld-tx1-bot" cx="250" cy="315" r="22" stroke="#10b981" stroke-width="3.5" fill="#0f172a" fill-opacity="0.6"/>
+
+                                <!-- 220kV Busbar -->
+                                <line x1="60" y1="410" x2="900" y2="410" stroke="#10b981" stroke-width="6" class="glow-emerald"/>
                                 <text x="65" y="400" fill="#10b981" font-size="12" font-weight="bold">220 kV OUTGOING DISTRIBUTION BUSBAR</text>
                             </svg>
                         </div>
@@ -505,33 +285,31 @@
                 <!-- VIEW 4: LIVE GRAPHS -->
                 <div id="view-graphs" class="main-view-section hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-sm"><h3 class="text-sm font-bold text-slate-800 mb-3"><i class="fa-solid fa-wave-square text-purple-600"></i> FFT Harmonic Spectrum</h3><div class="h-64 relative"><canvas id="harmonicFftChart"></canvas></div></div>
-                        <div class="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-sm"><h3 class="text-sm font-bold text-slate-800 mb-3"><i class="fa-solid fa-chart-line text-amber-500"></i> LSTM Failure Probability</h3><div class="h-64 relative"><canvas id="lstmFailureChart"></canvas></div></div>
-                        <div class="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-sm"><h3 class="text-sm font-bold text-slate-800 mb-3"><i class="fa-solid fa-battery-three-quarters text-emerald-600"></i> RUL Asset Health</h3><div class="h-64 relative"><canvas id="rulChart"></canvas></div></div>
-                        <div class="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-sm"><h3 class="text-sm font-bold text-slate-800 mb-3"><i class="fa-solid fa-compass-drafting text-blue-600"></i> Health Radar Chart</h3><div class="h-64 relative flex items-center justify-center"><canvas id="healthRadarChart"></canvas></div></div>
+                        <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm"><h3 class="text-sm font-bold mb-3">FFT Harmonic Spectrum</h3><div class="h-64 relative"><canvas id="harmonicFftChart"></canvas></div></div>
+                        <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm"><h3 class="text-sm font-bold mb-3">LSTM Failure Probability</h3><div class="h-64 relative"><canvas id="lstmFailureChart"></canvas></div></div>
                     </div>
                 </div>
 
                 <!-- VIEW 5: EVENTS & LOGS -->
                 <div id="view-logs" class="main-view-section hidden space-y-6">
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5">
-                        <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-bell text-rose-500"></i> Real-Time Alert Log</h3>
-                        <div id="alert-log-list" class="space-y-2.5 max-h-72 overflow-y-auto"></div>
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                        <h3 class="text-base font-bold">Real-Time Alert Log</h3>
+                        <div id="alert-log-list" class="space-y-2 max-h-72 overflow-y-auto"></div>
                     </div>
                 </div>
 
                 <!-- VIEW 6: REPORTS -->
                 <div id="view-reports" class="main-view-section hidden">
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">
-                        <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-file-invoice text-blue-600"></i> Compliance &amp; Asset Health Reports</h3>
-                        <button onclick="downloadPDFReport()" class="bg-[#1b2b44] hover:bg-[#0f1d33] text-white text-xs font-semibold px-4 py-2.5 rounded-xl cursor-pointer">Download Official Compliance Report (.TXT)</button>
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                        <h3 class="text-base font-bold">Compliance Reports</h3>
+                        <button onclick="downloadPDFReport()" class="bg-[#1b2b44] text-white text-xs font-semibold px-4 py-2.5 rounded-xl cursor-pointer">Download Report</button>
                     </div>
                 </div>
 
                 <!-- VIEW 7: SETTINGS -->
                 <div id="view-settings" class="main-view-section hidden">
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">
-                        <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-gear text-blue-600"></i> Digital Twin Configuration</h3>
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                        <h3 class="text-base font-bold">Configuration</h3>
                         <p class="text-xs text-slate-500">FastAPI backend configured at http://127.0.0.1:8000</p>
                     </div>
                 </div>
