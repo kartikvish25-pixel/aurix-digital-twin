@@ -4,14 +4,12 @@ body {
     color: #1e293b;
 }
 
-/* Active Left Sidebar Pill (Matches Dark Blue Glowing Pill in Image) */
 .active-sidebar-link {
     background: linear-gradient(90deg, rgba(30, 64, 124, 0.95) 0%, rgba(23, 47, 89, 0.85) 100%);
     color: #ffffff !important;
     box-shadow: inset 3px 0 0 #38bdf8, 0 4px 14px rgba(14, 165, 233, 0.18);
 }
 
-/* Light KPI Card Subtle Hover */
 .kpi-light-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -28,7 +26,6 @@ body {
     filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.7));
 }
 
-/* Animated Current Flow for 2D SLD & 3D Yard */
 @keyframes currentFlow {
     to {
         stroke-dashoffset: -24;
@@ -46,7 +43,6 @@ body {
     opacity: 0.35;
 }
 
-/* Custom Subtle Scrollbars */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;

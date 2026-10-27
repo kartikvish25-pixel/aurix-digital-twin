@@ -10,7 +10,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enable CORS so index.html can fetch data without browser blocks
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -34,12 +33,10 @@ def root():
 
 @app.get("/api/telemetry")
 def get_live_telemetry():
-    """Har 2.5 second mein frontend ko live SCADA + AI metrics bhejta hai"""
     return ai_engine.get_live_scada_telemetry()
 
 @app.post("/api/simulate")
 def simulate_what_if(data: SimulationInput):
-    """Jab user 3D Twin Simulator mein sliders hilata hai toh ML model run karta hai"""
     prediction = ai_engine.predict_health(
         load_pct=data.load_pct,
         oil_temp=data.oil_temp,
@@ -52,7 +49,6 @@ def simulate_what_if(data: SimulationInput):
 
 @app.get("/api/export-report")
 def export_pdf_report():
-    """Generates an official compliance & asset health report for judges / CMMS"""
     telemetry = ai_engine.get_live_scada_telemetry()
     ai = telemetry["ai_predictions"]
     scada = telemetry["scada"]
