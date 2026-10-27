@@ -5,7 +5,7 @@ body {
     overflow-x: hidden;
 }
 
-/* Sidebar Styling for Fixed Positioning & Smooth Transition */
+/* Sidebar Toggle & Fixed Styling */
 aside {
     transition: width 0.3s ease, transform 0.3s ease;
 }
@@ -75,4 +75,7 @@ aside.sidebar-collapsed .sidebar-link {
 ::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
