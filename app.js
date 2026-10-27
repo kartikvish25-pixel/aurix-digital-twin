@@ -4,8 +4,17 @@
 const API_BASE_URL = "http://127.0.0.1:8000";
 
 let latestTelemetryState = {
-    timestamp: new Date().toLocaleTimeString(),
-    scada: { voltage_kv: 402.5, current_a: 210.8, power_mw: 125.3, power_factor: 0.86, frequency_hz: 50.00 },
+    timestamp: "8:35:30 AM",
+    scada: {
+        voltage_kv: 400.4,
+        current_a: 212.7,
+        power_mw: 126.9,
+        power_factor: 0.86,
+        frequency_hz: 50.02,
+        total_load_mw: 687.3,
+        reactive_mvar: 112.6,
+        ambient_temp_c: 32.7
+    },
     ai_predictions: {
         hotspot_temp_c: 80.4,
         failure_prob_pct: 12.4,
@@ -19,21 +28,22 @@ let latestTelemetryState = {
 };
 
 let isChartPaused = false;
-let peakVoltage = 402.5;
-let peakPower = 125.3;
-
-// Live IST Clock in Top Header
-setInterval(() => {
-    const clockEl = document.getElementById('live-ist-clock');
-    if (clockEl) clockEl.innerText = `${new Date().toLocaleTimeString()} IST`;
-}, 1000);
+let isManualSimulationActive = false;
 
 // =====================================================
-// 1. SECURE LOGIN AUTHENTICATION
+// 1. SECURE LOGIN MODAL & GLOBAL SEARCH HANDLERS
 // =====================================================
 function quickFillLogin() {
     document.getElementById('login-user').value = "Exec_01";
     document.getElementById('login-pass').value = "patanjali2026";
+}
+
+function openLoginModal() {
+    const overlay = document.getElementById('login-overlay');
+    if (overlay) {
+        overlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+        overlay.style.display = 'flex';
+    }
 }
 
 function handleLogin(event) {
@@ -47,153 +57,122 @@ function handleLogin(event) {
 
     if (validUsers.includes(user) && validPasswords.includes(pass)) {
         errorBox.classList.add('hidden');
-        document.getElementById('login-overlay').classList.add('opacity-0', 'pointer-events-none');
+        const overlay = document.getElementById('login-overlay');
+        overlay.classList.add('opacity-0', 'pointer-events-none');
         setTimeout(() => {
-            document.getElementById('login-overlay').style.display = 'none';
-            const dashboard = document.getElementById('main-dashboard');
-            dashboard.classList.remove('opacity-0', 'pointer-events-none');
-            dashboard.classList.add('opacity-100');
+            overlay.classList.add('hidden');
             resizeAllCharts();
-        }, 300);
+        }, 250);
     } else {
         errorBox.classList.remove('hidden');
     }
 }
 
-function resizeAllCharts() {
-    telemetryChart.resize();
-    harmonicFftChart.resize();
-    lstmChart.resize();
-    rulChart.resize();
-    healthRadarChart.resize();
+function handleGlobalSearch(event) {
+    if (event.key === 'Enter') {
+        const q = event.target.value.toLowerCase();
+        if (q.includes('sld') || q.includes('diagram') || q.includes('breaker')) {
+            switchMainView('sld');
+        } else if (q.includes('dga') || q.includes('sim') || q.includes('3d') || q.includes('temp')) {
+            switchMainView('telemetry');
+        } else if (q.includes('fft') || q.includes('graph') || q.includes('rul') || q.includes('lstm')) {
+            switchMainView('graphs');
+        } else if (q.includes('alert') || q.includes('log') || q.includes('goose')) {
+            switchMainView('logs');
+        } else if (q.includes('report')) {
+            switchMainView('reports');
+        } else {
+            switchMainView('dashboard');
+        }
+    }
 }
 
 // =====================================================
-// 2. MAIN TAB & SUB-VIEW SIDEBAR NAVIGATION
+// 2. LEFT SIDEBAR NAVIGATION (7 VIEWS)
 // =====================================================
-function switchTab(tabName) {
-    document.querySelectorAll('.tab-content').forEach(sec => {
+function switchMainView(viewName) {
+    document.querySelectorAll('.main-view-section').forEach(sec => {
         sec.classList.add('hidden');
-        sec.classList.remove('block');
     });
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active-tab');
+
+    document.querySelectorAll('.sidebar-link').forEach(btn => {
+        btn.classList.remove('active-sidebar-link');
         btn.classList.add('text-slate-400');
     });
 
-    document.getElementById(`view-${tabName}`).classList.remove('hidden');
-    document.getElementById(`view-${tabName}`).classList.add('block');
-    
-    const activeBtn = document.getElementById(`tab-${tabName}`);
-    activeBtn.classList.add('active-tab');
-    activeBtn.classList.remove('text-slate-400');
-
-    setTimeout(resizeAllCharts, 100);
-}
-
-function toggleSidebar(tabPrefix) {
-    const sidebar = document.getElementById(`sidebar-${tabPrefix}`);
-    const content = document.getElementById(`content-${tabPrefix}`);
-    const toggleTxt = document.getElementById(`toggle-txt-${tabPrefix}`);
-
-    if (sidebar.classList.contains('hidden')) {
-        sidebar.classList.remove('hidden');
-        sidebar.classList.add('lg:col-span-3');
-        content.classList.remove('lg:col-span-12');
-        content.classList.add('lg:col-span-9');
-        toggleTxt.innerText = "Hide Menu";
-    } else {
-        sidebar.classList.add('hidden');
-        sidebar.classList.remove('lg:col-span-3');
-        content.classList.remove('lg:col-span-9');
-        content.classList.add('lg:col-span-12');
-        toggleTxt.innerText = "Show Menu";
+    const targetSection = document.getElementById(`view-${viewName}`);
+    if (targetSection) {
+        targetSection.classList.remove('hidden');
     }
-    setTimeout(resizeAllCharts, 100);
+
+    const activeNav = document.getElementById(`nav-${viewName}`);
+    if (activeNav) {
+        activeNav.classList.add('active-sidebar-link');
+        activeNav.classList.remove('text-slate-400');
+    }
+
+    setTimeout(resizeAllCharts, 80);
 }
 
-function switchSubView(tabPrefix, subViewName) {
-    const parentTab = document.getElementById(`view-${tabPrefix}`);
-    parentTab.querySelectorAll('.sub-section').forEach(sub => {
-        sub.classList.add('hidden');
-        sub.classList.remove('block');
+function setChartTimeframe(label, btnEl) {
+    document.querySelectorAll('.time-pill').forEach(b => {
+        b.classList.remove('bg-[#1b2b44]', 'text-white');
+        b.classList.add('text-slate-500');
     });
-
-    parentTab.querySelectorAll('.sub-nav-btn').forEach(btn => {
-        btn.classList.remove('active-sub');
-        btn.classList.add('text-slate-300', 'hover:bg-slate-700/50');
-    });
-
-    const targetSub = document.getElementById(`sub-view-${subViewName}`);
-    if (targetSub) {
-        targetSub.classList.remove('hidden');
-        targetSub.classList.add('block');
-    }
-
-    const activeSubBtn = document.getElementById(`sub-btn-${subViewName}`);
-    if (activeSubBtn) {
-        activeSubBtn.classList.add('active-sub');
-        activeSubBtn.classList.remove('text-slate-300', 'hover:bg-slate-700/50');
-    }
-
-    setTimeout(resizeAllCharts, 50);
+    btnEl.classList.add('bg-[#1b2b44]', 'text-white');
+    btnEl.classList.remove('text-slate-500');
 }
 
-function toggleChartPause() {
-    isChartPaused = !isChartPaused;
-    const btn = document.getElementById('btn-pause-chart');
-    if (btn) {
-        btn.innerHTML = isChartPaused
-            ? `<i class="fa-solid fa-play text-emerald-400"></i> Resume Stream`
-            : `<i class="fa-solid fa-pause"></i> Pause Stream`;
-    }
+function resizeAllCharts() {
+    if (typeof telemetryChart !== 'undefined') telemetryChart.resize();
+    if (typeof harmonicFftChart !== 'undefined') harmonicFftChart.resize();
+    if (typeof lstmChart !== 'undefined') lstmChart.resize();
+    if (typeof rulChart !== 'undefined') rulChart.resize();
+    if (typeof healthRadarChart !== 'undefined') healthRadarChart.resize();
 }
 
 // =====================================================
-// 3. UPGRADED CHART INITIALIZATIONS (Chart.js)
+// 3. CHART INITIALIZATIONS (LIGHT THEME MATCHING IMAGE)
 // =====================================================
-const timeLabels = ['18s', '15s', '12s', '9s', '6s', '3s', 'Now'];
+const timeLabels = ['07:30', '08:00', '08:30', '09:00', '09:30', '10:00'];
 
-// A. Dual-Axis Live SCADA Waveform Chart
+// A. Main 3-Line SCADA Telemetry Chart (Voltage, Current, Power)
 const ctxTelemetry = document.getElementById('telemetryChart').getContext('2d');
-const gradCyan = ctxTelemetry.createLinearGradient(0, 0, 0, 300);
-gradCyan.addColorStop(0, 'rgba(34, 211, 238, 0.35)');
-gradCyan.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
-
-const gradPurple = ctxTelemetry.createLinearGradient(0, 0, 0, 300);
-gradPurple.addColorStop(0, 'rgba(168, 85, 247, 0.30)');
-gradPurple.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
-
 const telemetryChart = new Chart(ctxTelemetry, {
     type: 'line',
     data: {
         labels: [...timeLabels],
         datasets: [
             {
-                label: 'Bus Voltage (kV)',
-                data: [401.2, 402.0, 401.8, 402.5, 402.1, 401.9, 402.5],
-                borderColor: '#22d3ee',
-                backgroundColor: gradCyan,
-                borderWidth: 2.5,
-                pointRadius: 4,
-                pointBackgroundColor: '#083344',
-                pointBorderColor: '#22d3ee',
-                tension: 0.4,
-                fill: true,
-                yAxisID: 'yVoltage'
+                label: 'Voltage (kV)',
+                data: [355, 345, 362, 340, 358, 400.4],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.06)',
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                tension: 0.42
             },
             {
-                label: 'Active Power (MW)',
-                data: [122.0, 124.5, 123.1, 125.8, 124.9, 126.0, 125.3],
+                label: 'Current (A)',
+                data: [215, 222, 204, 212, 228, 212.7],
+                borderColor: '#14b8a6',
+                backgroundColor: 'rgba(20, 184, 166, 0.05)',
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                tension: 0.42
+            },
+            {
+                label: 'Power (MW)',
+                data: [105, 98, 118, 102, 114, 126.9],
                 borderColor: '#a855f7',
-                backgroundColor: gradPurple,
-                borderWidth: 2.5,
-                pointRadius: 4,
-                pointBackgroundColor: '#3b0764',
-                pointBorderColor: '#a855f7',
-                tension: 0.4,
+                backgroundColor: 'rgba(168, 85, 247, 0.08)',
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 4,
                 fill: true,
-                yAxisID: 'yPower'
+                tension: 0.42
             }
         ]
     },
@@ -202,32 +181,25 @@ const telemetryChart = new Chart(ctxTelemetry, {
         maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         plugins: {
-            legend: { labels: { color: '#e2e8f0', usePointStyle: true, boxWidth: 8 } },
+            legend: { display: false },
             tooltip: {
-                backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                borderColor: 'rgba(34, 211, 238, 0.4)',
-                borderWidth: 1
+                backgroundColor: '#0f172a',
+                titleColor: '#f8fafc',
+                bodyColor: '#e2e8f0',
+                padding: 10,
+                cornerRadius: 8
             }
         },
         scales: {
-            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30, 41, 59, 0.6)' } },
-            yVoltage: {
-                type: 'linear',
-                position: 'left',
-                suggestedMin: 396,
-                suggestedMax: 406,
-                title: { display: true, text: 'Bus Voltage (kV)', color: '#22d3ee', font: { size: 11 } },
-                ticks: { color: '#22d3ee' },
-                grid: { color: 'rgba(30, 41, 59, 0.6)' }
+            x: {
+                ticks: { color: '#64748b', font: { size: 11 } },
+                grid: { color: '#f1f5f9' }
             },
-            yPower: {
-                type: 'linear',
-                position: 'right',
-                suggestedMin: 110,
-                suggestedMax: 145,
-                title: { display: true, text: 'Active Power (MW)', color: '#a855f7', font: { size: 11 } },
-                ticks: { color: '#a855f7' },
-                grid: { drawOnChartArea: false }
+            y: {
+                min: 0,
+                max: 500,
+                ticks: { stepSize: 100, color: '#64748b', font: { size: 11 } },
+                grid: { color: '#f1f5f9' }
             }
         }
     }
@@ -238,41 +210,26 @@ const ctxFft = document.getElementById('harmonicFftChart').getContext('2d');
 const harmonicFftChart = new Chart(ctxFft, {
     type: 'bar',
     data: {
-        labels: ['1st (50Hz Fund.)', '3rd (150Hz)', '5th (250Hz)', '7th (350Hz)', '9th (450Hz)', '11th (550Hz)', '13th (650Hz)'],
+        labels: ['1st (50Hz)', '3rd (150Hz)', '5th (250Hz)', '7th (350Hz)', '9th (450Hz)', '11th (550Hz)', '13th (650Hz)'],
         datasets: [{
-            label: 'Harmonic Magnitude (% of Fundamental)',
+            label: 'Harmonic Magnitude (%)',
             data: [100, 1.8, 1.4, 0.9, 0.5, 0.3, 0.2],
-            backgroundColor: [
-                'rgba(34, 211, 238, 0.7)',
-                'rgba(168, 85, 247, 0.75)',
-                'rgba(245, 158, 11, 0.75)',
-                'rgba(245, 158, 11, 0.75)',
-                'rgba(16, 185, 129, 0.75)',
-                'rgba(16, 185, 129, 0.75)',
-                'rgba(16, 185, 129, 0.75)'
-            ],
-            borderColor: '#a855f7',
-            borderWidth: 1,
+            backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#f59e0b', '#10b981', '#10b981', '#10b981'],
             borderRadius: 6
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#cbd5e1' } } },
+        plugins: { legend: { labels: { color: '#334155' } } },
         scales: {
-            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30, 41, 59, 0.5)' } },
-            y: {
-                type: 'logarithmic',
-                title: { display: true, text: 'Log Magnitude (%)', color: '#94a3b8' },
-                ticks: { color: '#94a3b8' },
-                grid: { color: 'rgba(30, 41, 59, 0.5)' }
-            }
+            x: { ticks: { color: '#64748b' }, grid: { color: '#f1f5f9' } },
+            y: { type: 'logarithmic', ticks: { color: '#64748b' }, grid: { color: '#f1f5f9' } }
         }
     }
 });
 
-// C. LSTM 30-Day Failure Probability Forecast (With Critical Threshold Line)
+// C. LSTM 30-Day Failure Probability Forecast
 const ctxLstm = document.getElementById('lstmFailureChart').getContext('2d');
 const lstmChart = new Chart(ctxLstm, {
     type: 'line',
@@ -283,14 +240,14 @@ const lstmChart = new Chart(ctxLstm, {
                 label: 'Predicted Failure Probability (%)',
                 data: [8, 10, 12, 14, 16, 18, 21],
                 borderColor: '#f59e0b',
-                backgroundColor: 'rgba(245, 158, 11, 0.16)',
+                backgroundColor: 'rgba(245, 158, 11, 0.14)',
                 borderWidth: 2.5,
-                pointRadius: 4,
+                pointRadius: 3,
                 fill: true,
                 tension: 0.4
             },
             {
-                label: 'Auto-Trip Danger Threshold (70%)',
+                label: 'Auto-Trip Threshold (70%)',
                 data: [70, 70, 70, 70, 70, 70, 70],
                 borderColor: '#f43f5e',
                 borderWidth: 1.8,
@@ -303,16 +260,15 @@ const lstmChart = new Chart(ctxLstm, {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { labels: { color: '#cbd5e1', usePointStyle: true } } },
+        plugins: { legend: { labels: { color: '#334155' } } },
         scales: {
-            x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
-            y: { min: 0, max: 100, ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+            x: { ticks: { color: '#64748b' }, grid: { color: '#f1f5f9' } },
+            y: { min: 0, max: 100, ticks: { color: '#64748b' }, grid: { color: '#f1f5f9' } }
         }
     }
 });
 
-// D. RUL Asset Health Degradation Curve (With Overhaul Threshold Line)
+// D. RUL Asset Health Degradation Curve
 const ctxRul = document.getElementById('rulChart').getContext('2d');
 const rulChart = new Chart(ctxRul, {
     type: 'line',
@@ -323,9 +279,9 @@ const rulChart = new Chart(ctxRul, {
                 label: 'Asset Health Index (%)',
                 data: [92, 88, 83, 77, 70, 62, 54],
                 borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.16)',
+                backgroundColor: 'rgba(16, 185, 129, 0.14)',
                 borderWidth: 2.5,
-                pointRadius: 4,
+                pointRadius: 3,
                 fill: true,
                 tension: 0.35
             },
@@ -343,11 +299,10 @@ const rulChart = new Chart(ctxRul, {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { labels: { color: '#cbd5e1', usePointStyle: true } } },
+        plugins: { legend: { labels: { color: '#334155' } } },
         scales: {
-            x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
-            y: { min: 0, max: 100, ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+            x: { ticks: { color: '#64748b' }, grid: { color: '#f1f5f9' } },
+            y: { min: 0, max: 100, ticks: { color: '#64748b' }, grid: { color: '#f1f5f9' } }
         }
     }
 });
@@ -357,24 +312,18 @@ const ctxRadar = document.getElementById('healthRadarChart').getContext('2d');
 const healthRadarChart = new Chart(ctxRadar, {
     type: 'radar',
     data: {
-        labels: [
-            'Thermal Integrity',
-            'Dielectric Insulation',
-            'SF6 Breaker Contacts',
-            'DGA Oil Purity',
-            'Harmonic Immunity'
-        ],
+        labels: ['Thermal Integrity', 'Dielectric Insulation', 'SF6 Contacts', 'DGA Oil Purity', 'Harmonic Immunity'],
         datasets: [
             {
-                label: 'TX-1 Live Digital Twin State',
+                label: 'TX-1 Live Digital Twin',
                 data: [91, 94, 88, 92, 90],
-                backgroundColor: 'rgba(34, 211, 238, 0.22)',
-                borderColor: '#22d3ee',
-                pointBackgroundColor: '#22d3ee',
-                borderWidth: 2.5
+                backgroundColor: 'rgba(59, 130, 246, 0.18)',
+                borderColor: '#2563eb',
+                pointBackgroundColor: '#2563eb',
+                borderWidth: 2
             },
             {
-                label: 'IEEE Nominal Baseline',
+                label: 'IEEE Baseline',
                 data: [95, 95, 95, 95, 95],
                 backgroundColor: 'rgba(16, 185, 129, 0.05)',
                 borderColor: '#10b981',
@@ -387,27 +336,23 @@ const healthRadarChart = new Chart(ctxRadar, {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#e2e8f0' } } },
+        plugins: { legend: { labels: { color: '#334155' } } },
         scales: {
             r: {
                 min: 0,
                 max: 100,
-                angleLines: { color: 'rgba(148, 163, 184, 0.2)' },
-                grid: { color: 'rgba(148, 163, 184, 0.2)' },
-                pointLabels: { color: '#cbd5e1', font: { size: 11, weight: 'bold' } },
+                pointLabels: { color: '#475569', font: { size: 10, weight: 'bold' } },
                 ticks: { display: false }
             }
         }
     }
 });
 
-// Function to dynamically update AI Graphs (LSTM, RUL, Radar, FFT) on Simulation / Live State
 function updateDynamicAIGraphs(ai, loadPct = 75, thdPct = 2.5) {
     const baseFail = ai.failure_prob_pct;
     const baseHealth = ai.health_index_pct;
 
-    // 1. Update LSTM 30-Day Forecast Curve
-    const lstmCurve = [
+    lstmChart.data.datasets[0].data = [
         baseFail,
         Math.min(99, +(baseFail * 1.08 + 1.2).toFixed(1)),
         Math.min(99, +(baseFail * 1.16 + 2.5).toFixed(1)),
@@ -416,14 +361,10 @@ function updateDynamicAIGraphs(ai, loadPct = 75, thdPct = 2.5) {
         Math.min(99, +(baseFail * 1.45 + 7.5).toFixed(1)),
         Math.min(99, +(baseFail * 1.55 + 9.5).toFixed(1))
     ];
-    lstmChart.data.datasets[0].data = lstmCurve;
-    lstmChart.data.datasets[0].borderColor = ai.severity === 'CRITICAL' ? '#f43f5e' : (ai.severity === 'WARNING' ? '#f59e0b' : '#22d3ee');
-    lstmChart.data.datasets[0].backgroundColor = ai.severity === 'CRITICAL' ? 'rgba(244, 63, 94, 0.2)' : 'rgba(245, 158, 11, 0.16)';
     lstmChart.update('none');
 
-    // 2. Update RUL 180-Day Degradation Curve
     const dropRate = ai.severity === 'CRITICAL' ? 11.5 : (ai.severity === 'WARNING' ? 7.5 : 5.2);
-    const rulCurve = [
+    rulChart.data.datasets[0].data = [
         baseHealth,
         Math.max(5, Math.round(baseHealth - dropRate * 1)),
         Math.max(5, Math.round(baseHealth - dropRate * 2.1)),
@@ -432,11 +373,8 @@ function updateDynamicAIGraphs(ai, loadPct = 75, thdPct = 2.5) {
         Math.max(5, Math.round(baseHealth - dropRate * 6.0)),
         Math.max(5, Math.round(baseHealth - dropRate * 7.5))
     ];
-    rulChart.data.datasets[0].data = rulCurve;
-    rulChart.data.datasets[0].borderColor = ai.severity === 'CRITICAL' ? '#f43f5e' : '#10b981';
     rulChart.update('none');
 
-    // 3. Update 5-Axis Radar Chart
     const thermalScore = Math.max(15, Math.min(98, Math.round(115 - (ai.hotspot_temp_c - 60) * 1.3)));
     const dielectricScore = Math.max(20, Math.round(baseHealth * 0.98));
     const contactScore = Math.max(25, Math.round(100 - (loadPct - 60) * 0.55));
@@ -444,11 +382,8 @@ function updateDynamicAIGraphs(ai, loadPct = 75, thdPct = 2.5) {
     const harmonicScore = Math.max(15, Math.round(100 - thdPct * 6.5));
 
     healthRadarChart.data.datasets[0].data = [thermalScore, dielectricScore, contactScore, dgaScore, harmonicScore];
-    healthRadarChart.data.datasets[0].borderColor = ai.severity === 'CRITICAL' ? '#f43f5e' : '#22d3ee';
-    healthRadarChart.data.datasets[0].backgroundColor = ai.severity === 'CRITICAL' ? 'rgba(244, 63, 94, 0.25)' : 'rgba(34, 211, 238, 0.22)';
     healthRadarChart.update('none');
 
-    // 4. Update FFT Harmonic Spectrum
     harmonicFftChart.data.datasets[0].data = [
         100,
         +(thdPct * 0.72).toFixed(2),
@@ -461,7 +396,7 @@ function updateDynamicAIGraphs(ai, loadPct = 75, thdPct = 2.5) {
     harmonicFftChart.update('none');
 
     const thdEl = document.getElementById('chart-thd-val');
-    if (thdEl) thdEl.innerText = `${thdPct} %`;
+    if (thdEl) thdEl.innerText = `${thdPct} % THD`;
 }
 
 // =====================================================
@@ -470,7 +405,7 @@ function updateDynamicAIGraphs(ai, loadPct = 75, thdPct = 2.5) {
 let alertsList = [
     { level: 'CRITICAL', color: 'rose', msg: 'High Temp TX-1 (85°C Threshold Near)', time: '14:32:10' },
     { level: 'WARNING', color: 'amber', msg: 'Breaker B2 Vibration Anomaly (12mm/s)', time: '13:45:02' },
-    { level: 'INFO', color: 'cyan', msg: 'IEC 61850 GOOSE Packet Sync Verified', time: '13:10:00' }
+    { level: 'INFO', color: 'blue', msg: 'IEC 61850 GOOSE Packet Sync Verified', time: '13:10:00' }
 ];
 
 let goosePackets = [];
@@ -482,17 +417,17 @@ function renderAlerts() {
     if (!container) return;
 
     if (alertsList.length === 0) {
-        container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">No unacknowledged alarms in queue.</div>`;
+        container.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">No unacknowledged alarms in queue.</div>`;
         return;
     }
 
     container.innerHTML = alertsList.map(a => `
-        <div class="p-3 rounded-lg bg-slate-900 border border-${a.color}-500/30 flex justify-between items-center text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex justify-between items-center text-xs">
             <div class="flex items-center space-x-2.5">
-                <span class="px-2 py-0.5 rounded bg-${a.color}-500/20 text-${a.color}-400 font-bold text-[10px]">${a.level}</span>
-                <span class="text-slate-200">${a.msg}</span>
+                <span class="px-2 py-0.5 rounded bg-${a.color}-100 text-${a.color}-700 font-bold text-[10px]">${a.level}</span>
+                <span class="text-slate-700 font-medium">${a.msg}</span>
             </div>
-            <span class="text-slate-500 text-[10px] font-mono">${a.time}</span>
+            <span class="text-slate-400 text-[10px] font-mono">${a.time}</span>
         </div>
     `).join('');
 }
@@ -516,7 +451,7 @@ function pushGoosePacket(scada) {
     const line = `[${new Date().toLocaleTimeString()}] GOOSE_PDU sqNum=${sqNum} stNum=1 | IED_RET670 -> BusA=${scada.voltage_kv}kV, I=${scada.current_a}A, P=${scada.power_mw}MW`;
     goosePackets.unshift(line);
     if (goosePackets.length > 8) goosePackets.pop();
-    streamEl.innerHTML = goosePackets.map(p => `<div class="text-emerald-400/90">${p}</div>`).join('');
+    streamEl.innerHTML = goosePackets.map(p => `<div>${p}</div>`).join('');
 }
 
 renderAlerts();
@@ -524,8 +459,6 @@ renderAlerts();
 // =====================================================
 // 5. LIVE TELEMETRY STREAM (FASTAPI + FALLBACK)
 // =====================================================
-let isManualSimulationActive = false;
-
 async function fetchLiveTelemetry() {
     try {
         const res = await fetch(`${API_BASE_URL}/api/telemetry`);
@@ -539,19 +472,22 @@ async function fetchLiveTelemetry() {
         }
         updateDashboardUI(latestTelemetryState, true);
     } catch (err) {
-        const voltage = +(399.0 + Math.random() * 4.2).toFixed(1);
-        const current = +(205.0 + Math.random() * 12.0).toFixed(1);
-        const pf = +(0.85 + Math.random() * 0.04).toFixed(2);
-        const freq = +(49.96 + Math.random() * 0.08).toFixed(2);
+        const voltage = +(399.8 + Math.random() * 1.4).toFixed(1);
+        const current = +(211.5 + Math.random() * 2.4).toFixed(1);
+        const pf = 0.86;
+        const freq = +(50.01 + Math.random() * 0.04).toFixed(2);
         const power = +((voltage * current * 1.732 * pf) / 1000).toFixed(1);
 
-        latestTelemetryState.timestamp = new Date().toLocaleTimeString();
+        latestTelemetryState.timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         latestTelemetryState.scada = {
             voltage_kv: voltage,
             current_a: current,
             power_mw: power,
             power_factor: pf,
-            frequency_hz: freq
+            frequency_hz: freq,
+            total_load_mw: +(685.5 + Math.random() * 3.6).toFixed(1),
+            reactive_mvar: +(111.8 + Math.random() * 1.8).toFixed(1),
+            ambient_temp_c: 32.7
         };
         updateDashboardUI(latestTelemetryState, false);
     }
@@ -560,46 +496,55 @@ async function fetchLiveTelemetry() {
 function updateDashboardUI(data, isBackendConnected) {
     const { scada, ai_predictions } = data;
 
-    document.getElementById('last-sync-time').innerText = data.timestamp;
-    document.getElementById('system-status-text').innerText = isBackendConnected
-        ? "SCADA + AI API: ONLINE"
-        : "SCADA EDGE SIM: ACTIVE";
+    const syncEl = document.getElementById('last-sync-time');
+    if (syncEl) syncEl.innerText = data.timestamp;
+
+    const statusTxt = document.getElementById('system-status-text');
+    if (statusTxt) statusTxt.innerText = isBackendConnected ? "System Online (API)" : "System Online";
 
     const latencyEl = document.getElementById('goose-latency');
-    if (latencyEl) latencyEl.innerText = `${Math.floor(9 + Math.random() * 6)} ms`;
+    if (latencyEl) latencyEl.innerText = `${Math.floor(10 + Math.random() * 5)} ms`;
 
+    // Top 4 Summary KPI Cards
+    const totalLoadEl = document.getElementById('top-total-load');
+    const reactiveEl = document.getElementById('top-reactive-power');
+    const sysFreqEl = document.getElementById('top-sys-freq');
+    const ambTempEl = document.getElementById('overview-ambient-temp');
+
+    if (totalLoadEl && scada.total_load_mw) totalLoadEl.innerText = scada.total_load_mw;
+    if (reactiveEl && scada.reactive_mvar) reactiveEl.innerText = scada.reactive_mvar;
+    if (sysFreqEl) sysFreqEl.innerText = Number(scada.frequency_hz).toFixed(2);
+    if (ambTempEl && scada.ambient_temp_c) ambTempEl.innerText = `${scada.ambient_temp_c} °C`;
+
+    // Latest Values Box next to Main Chart
+    const lvV = document.getElementById('latest-val-voltage');
+    const lvC = document.getElementById('latest-val-current');
+    const lvP = document.getElementById('latest-val-power');
+    if (lvV) lvV.innerText = `${scada.voltage_kv} kV`;
+    if (lvC) lvC.innerText = `${scada.current_a} A`;
+    if (lvP) lvP.innerText = `${scada.power_mw} MW`;
+
+    // Middle 3 Gauge Cards
     document.getElementById('val-voltage').innerText = scada.voltage_kv;
     document.getElementById('val-current').innerText = scada.current_a;
     document.getElementById('val-power').innerText = scada.power_mw;
     document.getElementById('val-pf').innerText = scada.power_factor;
     document.getElementById('val-freq').innerText = `${scada.frequency_hz} Hz`;
 
-    const mvarEl = document.getElementById('val-mvar');
-    if (mvarEl) mvarEl.innerText = (scada.power_mw * 0.48).toFixed(1);
-
-    // Track Peak Stats for Oscilloscope Header
-    if (scada.voltage_kv > peakVoltage) peakVoltage = scada.voltage_kv;
-    if (scada.power_mw > peakPower) peakPower = scada.power_mw;
-    const pkVEl = document.getElementById('chart-peak-v');
-    const pkMwEl = document.getElementById('chart-peak-mw');
-    if (pkVEl) pkVEl.innerText = `${peakVoltage} kV`;
-    if (pkMwEl) pkMwEl.innerText = `${peakPower} MW`;
+    document.getElementById('bar-voltage').style.width = `${Math.min(100, (scada.voltage_kv / 420) * 100)}%`;
+    document.getElementById('bar-current').style.width = `${Math.min(100, (scada.current_a / 350) * 100)}%`;
+    document.getElementById('bar-pf').style.width = `${Math.min(100, scada.power_factor * 100)}%`;
 
     // 3-Phase R-Y-B Symmetrical Values
     const phaseV = (scada.voltage_kv / 1.732).toFixed(1);
     const rEl = document.getElementById('ryb-r');
     const yEl = document.getElementById('ryb-y');
     const bEl = document.getElementById('ryb-b');
-    if (rEl) rEl.innerText = `${phaseV} kV | ${(scada.current_a - 0.3).toFixed(1)} A`;
-    if (yEl) yEl.innerText = `${(phaseV - 0.2).toFixed(1)} kV | ${(scada.current_a + 0.4).toFixed(1)} A`;
-    if (bEl) bEl.innerText = `${(+phaseV + 0.2).toFixed(1)} kV | ${scada.current_a} A`;
+    if (rEl) rEl.innerHTML = `${phaseV} kV <span class="text-slate-300 mx-1">|</span> ${(scada.current_a - 0.3).toFixed(1)} A`;
+    if (yEl) yEl.innerHTML = `${(phaseV - 0.2).toFixed(1)} kV <span class="text-slate-300 mx-1">|</span> ${(scada.current_a + 0.4).toFixed(1)} A`;
+    if (bEl) bEl.innerHTML = `${(+phaseV + 0.2).toFixed(1)} kV <span class="text-slate-300 mx-1">|</span> ${scada.current_a} A`;
 
-    document.getElementById('bar-voltage').style.width = `${Math.min(100, (scada.voltage_kv / 420) * 100)}%`;
-    document.getElementById('bar-current').style.width = `${Math.min(100, (scada.current_a / 350) * 100)}%`;
-    document.getElementById('bar-power').style.width = `${Math.min(100, (scada.power_mw / 200) * 100)}%`;
-    document.getElementById('bar-pf').style.width = `${Math.min(100, scada.power_factor * 100)}%`;
-
-    // Sync Live Readings on 2D SLD IED Callout Box
+    // Sync 2D SLD Callouts
     const sldBusKv = document.getElementById('sld-bus-kv');
     const sldTx1Mw = document.getElementById('sld-tx1-mw');
     const sldTx1Amp = document.getElementById('sld-tx1-amp');
@@ -610,12 +555,15 @@ function updateDashboardUI(data, isBackendConnected) {
     pushGoosePacket(scada);
 
     if (!isChartPaused) {
+        const nowShort = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         telemetryChart.data.labels.shift();
-        telemetryChart.data.labels.push(data.timestamp);
+        telemetryChart.data.labels.push(nowShort);
         telemetryChart.data.datasets[0].data.shift();
         telemetryChart.data.datasets[0].data.push(scada.voltage_kv);
         telemetryChart.data.datasets[1].data.shift();
-        telemetryChart.data.datasets[1].data.push(scada.power_mw);
+        telemetryChart.data.datasets[1].data.push(scada.current_a);
+        telemetryChart.data.datasets[2].data.shift();
+        telemetryChart.data.datasets[2].data.push(scada.power_mw);
         telemetryChart.update('none');
     }
 
@@ -633,7 +581,6 @@ function updateAIPanel(ai) {
     const sldTx1Temp = document.getElementById('sld-tx1-temp');
     if (sldTx1Temp) sldTx1Temp.textContent = `${ai.hotspot_temp_c} °C`;
 
-    // Update DGA Gas ppm dynamically based on failure risk
     const riskFactor = ai.failure_prob_pct / 12.0;
     const h2 = Math.round(35 * riskFactor);
     const ch4 = Math.round(24 * riskFactor);
@@ -641,33 +588,39 @@ function updateAIPanel(ai) {
     const c2h2 = +(0.6 * riskFactor).toFixed(1);
 
     const elH2 = document.getElementById('dga-h2');
-    const elCh4 = document.getElementById('dga-ch4');
-    const elC2h4 = document.getElementById('dga-c2h4');
-    const elC2h2 = document.getElementById('dga-c2h2');
     if (elH2) {
         elH2.innerText = `${h2} ppm`;
         document.getElementById('bar-dga-h2').style.width = `${Math.min(100, h2 / 3)}%`;
-        elCh4.innerText = `${ch4} ppm`;
+        document.getElementById('dga-ch4').innerText = `${ch4} ppm`;
         document.getElementById('bar-dga-ch4').style.width = `${Math.min(100, ch4 / 2.5)}%`;
-        elC2h4.innerText = `${c2h4} ppm`;
+        document.getElementById('dga-c2h4').innerText = `${c2h4} ppm`;
         document.getElementById('bar-dga-c2h4').style.width = `${Math.min(100, c2h4 / 2)}%`;
-        elC2h2.innerText = `${c2h2} ppm`;
+        document.getElementById('dga-c2h2').innerText = `${c2h2} ppm`;
         document.getElementById('bar-dga-c2h2').style.width = `${Math.min(100, c2h2 * 12)}%`;
     }
 
     document.getElementById('ai-fault-title').innerText = `Diagnostic State: ${ai.fault_classification}`;
     document.getElementById('ai-fault-action').innerText = `Recommended Action: ${ai.recommended_action}`;
 
+    const gridStatusEl = document.getElementById('top-grid-status');
+    const gridSubEl = document.getElementById('top-grid-subtext');
     const badge = document.getElementById('ai-severity-badge');
+
     if (ai.severity === "CRITICAL") {
-        badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40 animate-pulse";
+        badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-700 border border-rose-300 animate-pulse";
         badge.innerText = "SEVERITY: CRITICAL";
+        if (gridStatusEl) gridStatusEl.innerText = "Critical";
+        if (gridSubEl) gridSubEl.innerText = "TX-1 Thermal Alarm";
     } else if (ai.severity === "WARNING") {
-        badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40";
+        badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 border border-amber-300";
         badge.innerText = "SEVERITY: WARNING";
+        if (gridStatusEl) gridStatusEl.innerText = "Warning";
+        if (gridSubEl) gridSubEl.innerText = "Elevated THD / Stress";
     } else {
-        badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+        badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
         badge.innerText = "SEVERITY: NORMAL";
+        if (gridStatusEl) gridStatusEl.innerText = "Stable";
+        if (gridSubEl) gridSubEl.innerText = "No critical alerts";
     }
 }
 
@@ -686,7 +639,7 @@ async function runSimulation() {
     document.getElementById('lbl-load').innerText = `${load}%`;
     document.getElementById('lbl-temp').innerText = `${temp} °C`;
     document.getElementById('lbl-thd').innerText = `${thd}%`;
-    
+
     const tempLabel = document.getElementById('iso-tx1-temp-label');
     if (tempLabel) tempLabel.textContent = `${temp}°C`;
 
@@ -737,17 +690,11 @@ async function runSimulation() {
     updateAIPanel(aiResult);
     updateDynamicAIGraphs(aiResult, load, thd);
 
-    const simHotspot = document.getElementById('sim-out-hotspot');
-    const simRisk = document.getElementById('sim-out-risk');
-    const simRul = document.getElementById('sim-out-rul');
-    const simAction = document.getElementById('sim-action-box');
+    document.getElementById('sim-out-hotspot').innerText = `${aiResult.hotspot_temp_c} °C`;
+    document.getElementById('sim-out-risk').innerText = `${aiResult.failure_prob_pct} %`;
+    document.getElementById('sim-out-rul').innerText = `${aiResult.rul_days} Days`;
+    document.getElementById('sim-action-box').innerText = `${aiResult.fault_classification}: ${aiResult.recommended_action}`;
 
-    if (simHotspot) simHotspot.innerText = `${aiResult.hotspot_temp_c} °C`;
-    if (simRisk) simRisk.innerText = `${aiResult.failure_prob_pct} %`;
-    if (simRul) simRul.innerText = `${aiResult.rul_days} Days`;
-    if (simAction) simAction.innerText = `${aiResult.fault_classification}: ${aiResult.recommended_action}`;
-
-    // 3D Yard & 2D SLD Elements
     const tx1Box = document.getElementById('iso-tx1-box');
     const inner1 = document.getElementById('iso-tx1-inner1');
     const inner2 = document.getElementById('iso-tx1-inner2');
@@ -758,7 +705,6 @@ async function runSimulation() {
     const sldTx1Bot = document.getElementById('sld-tx1-bot');
     const sldStatusTag = document.getElementById('sld-status-tag');
 
-    // Animated Flow Lines for TX-1
     const flowLines = [
         document.getElementById('sld-flow-tx1-in'),
         document.getElementById('sld-flow-tx1-out'),
@@ -767,10 +713,7 @@ async function runSimulation() {
     ];
 
     if (aiResult.severity === "CRITICAL") {
-        if (tx1Box) {
-            tx1Box.setAttribute('stroke', '#f43f5e');
-            tx1Box.setAttribute('fill', '#f43f5e');
-        }
+        if (tx1Box) { tx1Box.setAttribute('stroke', '#f43f5e'); tx1Box.setAttribute('fill', '#f43f5e'); }
         if (inner1) inner1.setAttribute('stroke', '#f43f5e');
         if (inner2) inner2.setAttribute('stroke', '#f43f5e');
         if (twinPill) {
@@ -778,22 +721,16 @@ async function runSimulation() {
             twinPill.className = 'text-xs bg-rose-500/25 border border-rose-500 text-rose-400 px-3 py-1 rounded-full font-bold animate-pulse';
         }
         if (sldBreaker1) sldBreaker1.setAttribute('fill', '#f43f5e');
-        if (sldCb1Txt) {
-            sldCb1Txt.textContent = 'CB-1 (TRIPPED)';
-            sldCb1Txt.setAttribute('fill', '#fda4af');
-        }
+        if (sldCb1Txt) { sldCb1Txt.textContent = 'CB-1 (TRIPPED)'; sldCb1Txt.setAttribute('fill', '#fda4af'); }
         if (sldTx1Top) sldTx1Top.setAttribute('stroke', '#f43f5e');
         if (sldTx1Bot) sldTx1Bot.setAttribute('stroke', '#f43f5e');
         if (sldStatusTag) {
             sldStatusTag.innerText = 'CRITICAL: TX-1 OVERLOAD / CB-1 TRIPPED';
-            sldStatusTag.className = 'text-xs bg-rose-500/20 text-rose-400 border border-rose-500/40 px-3 py-1 rounded-full font-bold animate-pulse';
+            sldStatusTag.className = 'text-xs bg-rose-100 text-rose-700 border border-rose-300 px-3 py-1 rounded-full font-bold';
         }
         flowLines.forEach(l => l && l.classList.add('power-flow-stopped'));
     } else if (aiResult.severity === "WARNING") {
-        if (tx1Box) {
-            tx1Box.setAttribute('stroke', '#f59e0b');
-            tx1Box.setAttribute('fill', '#f59e0b');
-        }
+        if (tx1Box) { tx1Box.setAttribute('stroke', '#f59e0b'); tx1Box.setAttribute('fill', '#f59e0b'); }
         if (inner1) inner1.setAttribute('stroke', '#f59e0b');
         if (inner2) inner2.setAttribute('stroke', '#f59e0b');
         if (twinPill) {
@@ -801,22 +738,12 @@ async function runSimulation() {
             twinPill.className = 'text-xs bg-amber-500/25 border border-amber-400 text-amber-300 px-3 py-1 rounded-full font-semibold';
         }
         if (sldBreaker1) sldBreaker1.setAttribute('fill', '#f59e0b');
-        if (sldCb1Txt) {
-            sldCb1Txt.textContent = 'CB-1 (ALARM)';
-            sldCb1Txt.setAttribute('fill', '#fcd34d');
-        }
+        if (sldCb1Txt) { sldCb1Txt.textContent = 'CB-1 (ALARM)'; sldCb1Txt.setAttribute('fill', '#fcd34d'); }
         if (sldTx1Top) sldTx1Top.setAttribute('stroke', '#f59e0b');
         if (sldTx1Bot) sldTx1Bot.setAttribute('stroke', '#f59e0b');
-        if (sldStatusTag) {
-            sldStatusTag.innerText = 'WARNING: HARMONIC / THERMAL STRESS';
-            sldStatusTag.className = 'text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full font-semibold';
-        }
         flowLines.forEach(l => l && l.classList.remove('power-flow-stopped'));
     } else {
-        if (tx1Box) {
-            tx1Box.setAttribute('stroke', '#10b981');
-            tx1Box.setAttribute('fill', '#10b981');
-        }
+        if (tx1Box) { tx1Box.setAttribute('stroke', '#10b981'); tx1Box.setAttribute('fill', '#10b981'); }
         if (inner1) inner1.setAttribute('stroke', '#10b981');
         if (inner2) inner2.setAttribute('stroke', '#10b981');
         if (twinPill) {
@@ -824,15 +751,12 @@ async function runSimulation() {
             twinPill.className = 'text-xs bg-cyan-500/25 border border-cyan-400 text-cyan-300 px-3 py-1 rounded-full font-semibold';
         }
         if (sldBreaker1) sldBreaker1.setAttribute('fill', '#10b981');
-        if (sldCb1Txt) {
-            sldCb1Txt.textContent = 'CB-1 (CLOSED)';
-            sldCb1Txt.setAttribute('fill', '#e2e8f0');
-        }
+        if (sldCb1Txt) { sldCb1Txt.textContent = 'CB-1 (CLOSED)'; sldCb1Txt.setAttribute('fill', '#e2e8f0'); }
         if (sldTx1Top) sldTx1Top.setAttribute('stroke', '#22d3ee');
         if (sldTx1Bot) sldTx1Bot.setAttribute('stroke', '#10b981');
         if (sldStatusTag) {
             sldStatusTag.innerText = 'All Feeders Energized';
-            sldStatusTag.className = 'text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full font-semibold';
+            sldStatusTag.className = 'text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-semibold';
         }
         flowLines.forEach(l => l && l.classList.remove('power-flow-stopped'));
     }
@@ -862,13 +786,13 @@ function resetSimulation() {
     document.getElementById('slider-thd').value = 2.5;
     runSimulation();
     isManualSimulationActive = false;
-    addAlert('INFO', 'cyan', 'Simulation Reset to Nominal Operating Parameters');
+    addAlert('INFO', 'blue', 'Simulation Reset to Nominal Operating Parameters');
 }
 
 function generateCMMSTicket() {
     const ai = latestTelemetryState.ai_predictions;
     const ticketId = `WO-${Math.floor(10000 + Math.random() * 90000)}`;
-    addAlert('INFO', 'cyan', `CMMS Work Order ${ticketId} Dispatched: ${ai.recommended_action}`);
+    addAlert('INFO', 'blue', `CMMS Work Order ${ticketId} Dispatched: ${ai.recommended_action}`);
     alert(`CMMS Work Order Generated!\n\nTicket ID: ${ticketId}\nAsset: 400/220kV ICT TX-1 (315 MVA)\nSeverity: ${ai.severity}\nAction: ${ai.recommended_action}`);
 }
 
@@ -904,11 +828,13 @@ Framework Standards: IEC 61850 (Substation Interoperability)
 --------------------------------------------------------------------
 1. REAL-TIME SCADA TELEMETRY (OPC-UA / MQTT)
 --------------------------------------------------------------------
-- Bus Voltage (EHV): ${scada.voltage_kv} kV (Nominal: 400 kV)
-- Line Current     : ${scada.current_a} A
-- Active Power Flow: ${scada.power_mw} MW
-- Power Factor     : ${scada.power_factor}
-- Frequency        : ${scada.frequency_hz} Hz
+- Total Substation Load : ${scada.total_load_mw || 687.3} MW
+- Total Reactive Power  : ${scada.reactive_mvar || 112.6} MVAr
+- Bus Voltage (EHV)     : ${scada.voltage_kv} kV (Nominal: 400 kV)
+- Line Current          : ${scada.current_a} A
+- Active Power Flow     : ${scada.power_mw} MW
+- Power Factor          : ${scada.power_factor}
+- Frequency             : ${scada.frequency_hz} Hz
 
 --------------------------------------------------------------------
 2. AI/ML ANALYTICS & DIAGNOSTICS (Random Forest / LSTM)

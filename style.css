@@ -1,22 +1,23 @@
-.sticky-sidebar {
-    position: sticky;
-    top: 80px;
-    height: fit-content;
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f4f7fb;
+    color: #1e293b;
 }
 
-.active-tab {
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.28), rgba(59, 130, 246, 0.22));
-    color: #22d3ee !important;
-    border: 1px solid rgba(34, 211, 238, 0.5);
-    box-shadow: 0 0 15px rgba(34, 211, 238, 0.25);
+/* Active Left Sidebar Pill (Matches Dark Blue Glowing Pill in Image) */
+.active-sidebar-link {
+    background: linear-gradient(90deg, rgba(30, 64, 124, 0.95) 0%, rgba(23, 47, 89, 0.85) 100%);
+    color: #ffffff !important;
+    box-shadow: inset 3px 0 0 #38bdf8, 0 4px 14px rgba(14, 165, 233, 0.18);
 }
 
-.active-sub {
-    background: linear-gradient(90deg, rgba(6, 182, 212, 0.2), rgba(15, 23, 42, 0.4));
-    color: #22d3ee !important;
-    border: 1px solid rgba(34, 211, 238, 0.35);
-    font-weight: 600;
-    box-shadow: inset 3px 0 0 #22d3ee;
+/* Light KPI Card Subtle Hover */
+.kpi-light-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.kpi-light-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06);
 }
 
 .glow-line {
@@ -45,33 +46,18 @@
     opacity: 0.35;
 }
 
-/* Subtle Cyber Grid Background */
-.cyber-grid-bg {
-    background-color: #020617;
-    background-image: 
-        linear-gradient(to right, rgba(30, 41, 59, 0.35) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(30, 41, 59, 0.35) 1px, transparent 1px);
-    background-size: 28px 28px;
-}
-
-/* Card Hover Glow */
-.kpi-card {
-    transition: all 0.25s ease;
-}
-.kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px -5px rgba(6, 182, 212, 0.18);
-    border-color: rgba(34, 211, 238, 0.45);
-}
-
+/* Custom Subtle Scrollbars */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: #0f172a;
+    background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: #cbd5e1;
     border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }

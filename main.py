@@ -70,18 +70,20 @@ Framework Standards: IEC 61850 (Substation Interoperability)
 --------------------------------------------------------------------
 1. REAL-TIME SCADA TELEMETRY (OPC-UA / MQTT)
 --------------------------------------------------------------------
-- Bus Voltage (EHV): {scada['voltage_kv']} kV (Nominal: 400 kV)
-- Line Current     : {scada['current_a']} A
-- Active Power Flow: {scada['power_mw']} MW
-- Power Factor     : {scada['power_factor']}
-- Frequency        : {scada['frequency_hz']} Hz
+- Total Substation Load : {scada['total_load_mw']} MW
+- Total Reactive Power  : {scada['reactive_mvar']} MVAr
+- Bus Voltage (EHV)     : {scada['voltage_kv']} kV (Nominal: 400 kV)
+- Line Current          : {scada['current_a']} A
+- Active Power Flow     : {scada['power_mw']} MW
+- Power Factor          : {scada['power_factor']}
+- Frequency             : {scada['frequency_hz']} Hz
 
 --------------------------------------------------------------------
 2. AI/ML ANALYTICS & DIAGNOSTICS (Random Forest / LSTM)
 --------------------------------------------------------------------
 - Transformer T1 Health Index : {ai['health_index_pct']}%
 - Winding Hot-Spot Temp       : {ai['hotspot_temp_c']} °C
-- Failure Probability         : {ai['failure_prob_pct']}%
+- Failure Probability         : {ai['failure_prob_pct']} %
 - Estimated Remaining Life    : {ai['rul_days']} Days
 - Anomaly Status              : {'ANOMALY DETECTED' if ai['is_anomaly'] else 'Normal'}
 
